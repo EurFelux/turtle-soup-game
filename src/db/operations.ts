@@ -49,7 +49,7 @@ export async function getDbSoupById(id: string): Promise<DbSoup | undefined> {
 /**
  * Get all soup puzzles
  */
-export async function getAllSoups(): Promise<DbSoup[]> {
+export async function getAllDbSoups(): Promise<DbSoup[]> {
 	return await db.soups.toArray();
 }
 
@@ -167,14 +167,44 @@ export async function deleteAllTries(): Promise<void> {
  * Get soup puzzle with all its try records
  */
 export async function getSoupById(soupId: string): Promise<Soup | null> {
-	const soup = await getDbSoupById(soupId);
-	if (!soup) return null;
+	const dbSoup = await getDbSoupById(soupId);
+	if (!dbSoup) return null;
 
-	const tries = await db.tries.bulkGet(soup.tryIds);
+	const tries = await db.tries.bulkGet(dbSoup.tryIds);
+	const { tryIds: _, ...soup } = dbSoup;
 	return {
 		...soup,
 		tries: tries.filter((t): t is Try => t !== undefined),
 	};
+}
+
+/**
+ * Get all soup puzzles with their try records
+ */
+export async function getAllSoups(): Promise<Soup[]> {
+	const dbSoups = await getAllDbSoups();
+	const allTries = await db.tries.toArray();
+
+	// Create a map of tries by ID for quick lookup
+	const triesMap = new Map<string, Try>();
+	for (const tryRecord of allTries) {
+		triesMap.set(tryRecord.id, tryRecord);
+	}
+
+	// Convert DbSoup to Soup by replacing tryIds with actual Try objects
+	return dbSoups.map((dbSoup): Soup => {
+		const tries = dbSoup.tryIds
+			.map((tryId) => triesMap.get(tryId))
+			.filter((tryRecord): tryRecord is Try => tryRecord !== undefined);
+
+		return {
+			id: dbSoup.id,
+			title: dbSoup.title,
+			surface: dbSoup.surface,
+			truth: dbSoup.truth,
+			tries,
+		};
+	});
 }
 
 /**

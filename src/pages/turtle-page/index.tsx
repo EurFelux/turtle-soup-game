@@ -1,9 +1,14 @@
 import { useCallback, useState } from "react";
+import useSWR from "swr";
 import AiSettingsSection from "@/components/ai-settings-section";
+import { Separator } from "@/components/ui/separator";
 import { defaultAiSettings } from "@/config/ai";
 import { LocalStorageKeyMap } from "@/config/storage";
+import { swrKeyMap } from "@/config/swr";
+import { getAllSoups } from "@/db";
 import { type AiSettings, AiSettingsSchema } from "@/types/ai";
 import { safeParseJson } from "@/utils/json";
+import SoupList from "./soup-list";
 
 const TurtlePage = () => {
 	const [settings, _setSettings] = useState<AiSettings>(() => {
@@ -45,11 +50,19 @@ const TurtlePage = () => {
 		[_setSettings],
 	);
 
+	const { data: soups, error } = useSWR(swrKeyMap.soups, getAllSoups);
+
 	return (
-		<div className="p-8">
-			<h1>Turtle Game</h1>
-			<p>Welcome to the Turtle Game!</p>
-			<AiSettingsSection settings={settings} setSettings={setSettings} />
+		<div className="flex flex-1 p-8">
+			<div className="w-60">
+				<SoupList soups={soups} error={error}></SoupList>
+			</div>
+			<Separator orientation="vertical"></Separator>
+			<div className="flex-1"></div>
+			<Separator orientation="vertical"></Separator>
+			<div className="w-80">
+				<AiSettingsSection settings={settings} setSettings={setSettings} />
+			</div>
 		</div>
 	);
 };

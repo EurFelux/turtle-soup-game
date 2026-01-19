@@ -51,7 +51,15 @@
 }
 
 body {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 @media (prefers-color-scheme: light) {

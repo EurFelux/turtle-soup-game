@@ -1,0 +1,54 @@
+import { XCircleIcon } from "lucide-react";
+import { useMemo } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Soup } from "@/types";
+import SoupItem from "./soup-item";
+
+type SoupsListProps = {
+	// Take undefined as loading
+	soups: Soup[] | undefined;
+	error: unknown;
+};
+
+const SoupList = ({ soups, error }: SoupsListProps) => {
+	const content = useMemo(() => {
+		if (soups === undefined) {
+			return (
+				<>
+					<li>
+						<Skeleton className="h-5 w-full" />
+					</li>
+					<li>
+						<Skeleton className="h-5 w-full" />
+					</li>
+					<li>
+						<Skeleton className="h-5 w-full" />
+					</li>
+					<li>
+						<Skeleton className="h-5 w-full" />
+					</li>
+				</>
+			);
+		} else {
+			return soups.map((soup: Soup) => <SoupItem soup={soup}></SoupItem>);
+		}
+	}, [soups]);
+
+	if (error) {
+		return (
+			<Alert className="w-full">
+				<XCircleIcon className="size-5 text-red-500" />
+				Something is wrong.
+			</Alert>
+		);
+	}
+
+	return (
+		<div className="" role="list">
+			{content}
+		</div>
+	);
+};
+
+export default SoupList;

@@ -32,7 +32,7 @@ function App() {
 		<ThemeProvider>
 			<LocaleProvider>
 				<NavBar />
-				<main>
+				<main className="flex flex-1 flex-col">
 					<TurtlePage />
 				</main>
 				<Toaster />
