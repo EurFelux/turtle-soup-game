@@ -48,6 +48,8 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 		}
 	};
 
+	const submitQuestionButtonDisabled = !question || isAsking;
+
 	return (
 		<div className="flex flex-col gap-2 bg-secondary">
 			<section className="rounded-lg bg-secondary p-4">
@@ -73,6 +75,12 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 								setQuestion(e.target.value);
 							}}
 							disabled={isAsking}
+							onKeyDown={async (e) => {
+								if (submitQuestionButtonDisabled) return;
+								if (e.key === "Enter") {
+									return submitQuestion();
+								}
+							}}
 						/>
 					</FieldContent>
 					<FieldDescription>
@@ -83,7 +91,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 					<Button
 						type="button"
 						onClick={submitQuestion}
-						disabled={!question || isAsking}
+						disabled={submitQuestionButtonDisabled}
 					>
 						{isAsking && <Spinner />}
 						{t("page.turtle.main_game.try.submit")}
