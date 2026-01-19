@@ -52,10 +52,17 @@ const TurtlePage = () => {
 
 	const { data: soups, error } = useSWR(swrKeyMap.soups, getAllSoups);
 
+	const [activeSoupId, setActiveSoupId] = useState<string | null>(null);
+
 	return (
 		<div className="flex flex-1 p-8">
 			<div className="w-60">
-				<SoupList soups={soups} error={error}></SoupList>
+				<SoupList
+					soups={soups}
+					error={error}
+					activeSoupId={activeSoupId}
+					setActiveSoupId={setActiveSoupId}
+				></SoupList>
 			</div>
 			<Separator orientation="vertical"></Separator>
 			<div className="flex-1"></div>

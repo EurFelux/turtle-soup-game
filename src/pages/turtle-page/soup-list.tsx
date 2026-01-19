@@ -9,9 +9,16 @@ type SoupsListProps = {
 	// Take undefined as loading
 	soups: Soup[] | undefined;
 	error: unknown;
+	activeSoupId: string | null;
+	setActiveSoupId: (id: string | null) => void;
 };
 
-const SoupList = ({ soups, error }: SoupsListProps) => {
+const SoupList = ({
+	soups,
+	error,
+	activeSoupId,
+	setActiveSoupId,
+}: SoupsListProps) => {
 	const content = useMemo(() => {
 		if (soups === undefined) {
 			return (
@@ -31,9 +38,15 @@ const SoupList = ({ soups, error }: SoupsListProps) => {
 				</>
 			);
 		} else {
-			return soups.map((soup: Soup) => <SoupItem soup={soup}></SoupItem>);
+			return soups.map((soup: Soup) => (
+				<SoupItem
+					soup={soup}
+					active={activeSoupId === soup.id}
+					onClick={() => setActiveSoupId(soup.id)}
+				></SoupItem>
+			));
 		}
-	}, [soups]);
+	}, [activeSoupId, setActiveSoupId, soups]);
 
 	if (error) {
 		return (
