@@ -1,3 +1,4 @@
+import { LanguagesIcon } from "lucide-react";
 import { type ReactNode } from "react";
 import { useLocale } from "@/hooks/useLocale";
 import {
@@ -5,6 +6,7 @@ import {
 	englishUnitedStates,
 	type LocaleCode,
 } from "@/types/locale";
+import { Button } from "./ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -30,7 +32,11 @@ export const LocaleSelect = () => {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger></DropdownMenuTrigger>
+			<DropdownMenuTrigger>
+				<Button>
+					<LanguagesIcon className="size-4" />
+				</Button>
+			</DropdownMenuTrigger>
 			<DropdownMenuContent>
 				<DropdownMenuRadioGroup
 					value={locale}

@@ -1,7 +1,15 @@
+import NavBar from "./components/navbar";
 import TurtlePage from "./pages/turtle-page";
 
 function App() {
-	return <TurtlePage />;
+	return (
+		<>
+			<NavBar></NavBar>
+			<main>
+				<TurtlePage />;
+			</main>
+		</>
+	);
 }
 
 export default App;
