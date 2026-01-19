@@ -3,6 +3,8 @@
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
+	"description": "An AI-powered interactive Turtle Soup lateral thinking puzzle game with multilingual support and offline capabilities",
+	"license": "GPL-3.0-or-later",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
