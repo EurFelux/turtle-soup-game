@@ -37,15 +37,14 @@ Turtle Soup (Lateral Thinking Puzzle) is a deductive reasoning game. The puzzle 
 
 ## 📦 Installation
 
+This project uses pnpm as the package manager. Please install pnpm first if you haven't:
+
 ```bash
-# Using pnpm (recommended)
+# Install pnpm globally
+npm install -g pnpm
+
+# Install dependencies
 pnpm install
-
-# Or using npm
-npm install
-
-# Or using yarn
-yarn install
 ```
 
 ## 🚀 Development
