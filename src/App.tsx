@@ -8,9 +8,6 @@ import { ThemeProvider } from "./components/provider/theme-provider";
 import { defaultLocale } from "./config/locale";
 import TurtlePage from "./pages/turtle-page";
 
-console.log(enUS);
-console.log(zhCN);
-
 i18n
 	.use(initReactI18next) // passes i18n down to react-i18next
 	.init({
