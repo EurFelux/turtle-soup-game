@@ -31,6 +31,18 @@ export default defineConfig([
 					argsIgnorePattern: "^_",
 				},
 			],
+			"no-restricted-imports": [
+				"error",
+				{
+					patterns: [
+						{
+							group: ["**/db/database", "@/db/database"],
+							message:
+								"Do not import the database instance directly. Use the operation functions from '@/db'.",
+						},
+					],
+				},
+			],
 		},
 		languageOptions: {
 			ecmaVersion: 2020,
