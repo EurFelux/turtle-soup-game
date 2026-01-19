@@ -19,6 +19,37 @@ src/db/
 - **operations.ts**: Implements all CRUD operation functions
 - **index.ts**: Serves as the module's public entry point, re-exports all functions from operations
 
+## Database Schema
+
+The database follows a relational design with proper foreign key relationships:
+
+### Tables
+
+**soups** - Soup puzzle entries
+- `id` (primary key)
+- `title` - Puzzle title
+- `surface` - The story/scenario (汤面)
+- `truth` - The answer/solution (汤底)
+- `createAt` - Creation timestamp
+- `updateAt` - Last update timestamp
+
+**tries** - User attempt records
+- `id` (primary key)
+- `soupId` (foreign key → soups.id, indexed)
+- `status` - "valid" or "invalid"
+- `question` - User's question
+- `response` - AI's response ("yes", "no", "unrelated") for valid tries
+- `reason` - Reason for invalid tries
+- `createAt` - Creation timestamp (indexed)
+- `updateAt` - Last update timestamp (indexed)
+
+### Relationship
+
+- **One-to-Many**: One soup can have multiple tries
+- Relationship is established via `tries.soupId` foreign key
+- No redundant `tryIds` array in soups table
+- Efficient querying via indexed `soupId` field
+
 ## Usage Guidelines
 
 ### ✅ Correct Usage
@@ -50,34 +81,51 @@ await db.soups.add({ ... });
 2. **Single Entry Point**: All database operations go through functions exposed in `operations.ts`
 3. **Type Safety**: All functions have complete TypeScript type definitions
 4. **Runtime Validation**: All create and update operations use Zod runtime validation to prevent invalid data
-5. **Maintainability**: Database logic is centrally managed, easy to modify and test
+5. **Transactional Integrity**: Critical operations use Dexie transactions to ensure atomicity and data consistency
+6. **Maintainability**: Database logic is centrally managed, easy to modify and test
+
+## Transaction Safety
+
+The following operations are wrapped in atomic transactions to prevent race conditions and ensure data consistency:
+
+- **`addTryToSoup()`**: Atomically verifies soup exists and creates try record
+- **`removeTryFromSoup()`**: Atomically verifies ownership and deletes try record
+- **`deleteSoupWithTries()`**: Atomically deletes soup and all associated tries
+
+These transactions guarantee that either all operations succeed or all fail, preventing partial updates and data inconsistency.
 
 ## Available Operations
 
 ### Soup Operations
 - `createSoup(soup)` - Create a soup puzzle
 - `createSoups(soups)` - Bulk create
-- `getSoupById(id)` - Query single soup
-- `getAllSoups()` - Query all soups
+- `getDbSoupById(id)` - Query single soup (DB layer)
+- `getSoupById(id)` - Query soup with tries (App layer)
+- `getAllDbSoups()` - Query all soups (DB layer)
+- `getAllSoups()` - Query all soups with tries (App layer)
 - `updateSoup(id, changes)` - Update soup
-- `deleteSoup(id)` - Delete soup
+- `deleteSoup(id)` - Delete soup only
+- `deleteSoupWithTries(id)` - Delete soup and all its tries (cascade)
 - `deleteAllSoups()` - Clear all soups
 
 ### Try Operations
-- `createTry(tryRecord)` - Create a try record
-- `createTries(tries)` - Bulk create
 - `getTryById(id)` - Query single try
 - `getAllTries()` - Query all tries
 - `getTriesByDateRange(start, end)` - Query by date range
+- `getTriesBySoupId(soupId)` - Query all tries for a soup
 - `updateTry(id, changes)` - Update try
 - `deleteTry(id)` - Delete try
 - `deleteTries(ids)` - Bulk delete
 - `deleteAllTries()` - Clear all tries
 
+**Note**: To create tries, use `addTryToSoup()` in the Relational Operations section, which ensures proper validation of soup relationships.
+
 ### Relational Operations
-- `getSoupWithTries(soupId)` - Get soup with all its tries
-- `addTryToSoup(soupId, tryRecord)` - Add a try to soup
-- `removeTryFromSoup(soupId, tryId)` - Remove a try from soup
+- `getSoupById(soupId)` - Get soup with all its tries
+- `getAllSoups()` - Get all soups with their tries
+- `addTryToSoup(soupId, tryRecord)` - Add a try to soup (validates soup exists)
+- `removeTryFromSoup(soupId, tryId)` - Remove a try from soup (validates ownership)
+- `deleteSoupWithTries(id)` - Cascade delete soup and all tries
 
 ## Extension Guide
 

@@ -9,7 +9,8 @@ src/db/
 ├── database.ts     # 数据库实例定义（私有，仅供内部使用）
 ├── operations.ts   # 数据库操作函数实现
 ├── index.ts        # 公共 API 入口（重新导出所有操作函数）
-└── README.md       # 文档
+├── README.md       # 文档（中文）
+└── README.en.md    # 文档（英文）
 ```
 
 ### 文件职责
@@ -17,6 +18,37 @@ src/db/
 - **database.ts**: 定义 Dexie 数据库实例和表结构，**禁止外部导入**
 - **operations.ts**: 实现所有 CRUD 操作函数
 - **index.ts**: 作为模块的公共入口，重新导出 operations 中的所有函数
+
+## 数据库结构
+
+数据库采用关系型设计，具有正确的外键关系：
+
+### 数据表
+
+**soups** - 汤谜题记录
+- `id` (主键)
+- `title` - 谜题标题
+- `surface` - 汤面（故事/场景）
+- `truth` - 汤底（答案/真相）
+- `createAt` - 创建时间戳
+- `updateAt` - 最后更新时间戳
+
+**tries** - 用户尝试记录
+- `id` (主键)
+- `soupId` (外键 → soups.id，已索引)
+- `status` - "valid" 或 "invalid"
+- `question` - 用户的问题
+- `response` - AI 的回答（"yes", "no", "unrelated"），仅适用于有效尝试
+- `reason` - 无效原因，仅适用于无效尝试
+- `createAt` - 创建时间戳（已索引）
+- `updateAt` - 最后更新时间戳（已索引）
+
+### 关系设计
+
+- **一对多关系**：一个汤谜题可以有多个尝试记录
+- 通过 `tries.soupId` 外键建立关系
+- 不在 soups 表中冗余存储 `tryIds` 数组
+- 通过索引的 `soupId` 字段实现高效查询
 
 ## 使用规范
 
@@ -49,34 +81,51 @@ await db.soups.add({ ... });
 2. **单一入口**: 所有数据库操作都通过 `operations.ts` 暴露的函数进行
 3. **类型安全**: 所有函数都有完整的 TypeScript 类型定义
 4. **运行时验证**: 所有创建和更新操作都使用 Zod 运行时验证，防止无效数据
-5. **易于维护**: 数据库逻辑集中管理，便于修改和测试
+5. **事务完整性**: 关键操作使用 Dexie 事务确保原子性和数据一致性
+6. **易于维护**: 数据库逻辑集中管理，便于修改和测试
+
+## 事务安全性
+
+以下操作被包装在原子事务中，以防止竞态条件并确保数据一致性：
+
+- **`addTryToSoup()`**: 原子性地验证汤谜题存在并创建尝试记录
+- **`removeTryFromSoup()`**: 原子性地验证所有权并删除尝试记录
+- **`deleteSoupWithTries()`**: 原子性地删除汤谜题及所有关联的尝试记录
+
+这些事务保证要么所有操作都成功，要么全部失败，防止部分更新和数据不一致。
 
 ## 可用操作
 
 ### Soup 操作
 - `createSoup(soup)` - 创建汤谜题
 - `createSoups(soups)` - 批量创建
-- `getSoupById(id)` - 查询单个
-- `getAllSoups()` - 查询所有
-- `updateSoup(id, changes)` - 更新
-- `deleteSoup(id)` - 删除
-- `deleteAllSoups()` - 清空
+- `getDbSoupById(id)` - 查询单个汤谜题（数据库层）
+- `getSoupById(id)` - 查询汤谜题及尝试记录（应用层）
+- `getAllDbSoups()` - 查询所有汤谜题（数据库层）
+- `getAllSoups()` - 查询所有汤谜题及尝试记录（应用层）
+- `updateSoup(id, changes)` - 更新汤谜题
+- `deleteSoup(id)` - 仅删除汤谜题
+- `deleteSoupWithTries(id)` - 删除汤谜题及所有尝试记录（级联删除）
+- `deleteAllSoups()` - 清空所有汤谜题
 
 ### Try 操作
-- `createTry(tryRecord)` - 创建尝试记录
-- `createTries(tries)` - 批量创建
-- `getTryById(id)` - 查询单个
-- `getAllTries()` - 查询所有
+- `getTryById(id)` - 查询单个尝试记录
+- `getAllTries()` - 查询所有尝试记录
 - `getTriesByDateRange(start, end)` - 按日期范围查询
-- `updateTry(id, changes)` - 更新
-- `deleteTry(id)` - 删除
+- `getTriesBySoupId(soupId)` - 查询某个汤谜题的所有尝试
+- `updateTry(id, changes)` - 更新尝试记录
+- `deleteTry(id)` - 删除尝试记录
 - `deleteTries(ids)` - 批量删除
-- `deleteAllTries()` - 清空
+- `deleteAllTries()` - 清空所有尝试记录
+
+**注意**: 创建尝试记录请使用"关联操作"部分的 `addTryToSoup()`，该函数会确保正确验证汤谜题关联关系。
 
 ### 关联操作
-- `getSoupWithTries(soupId)` - 获取汤谜题及其所有尝试
-- `addTryToSoup(soupId, tryRecord)` - 添加尝试到汤谜题
-- `removeTryFromSoup(soupId, tryId)` - 移除尝试记录
+- `getSoupById(soupId)` - 获取汤谜题及其所有尝试记录
+- `getAllSoups()` - 获取所有汤谜题及尝试记录
+- `addTryToSoup(soupId, tryRecord)` - 为汤谜题添加尝试（验证汤谜题存在）
+- `removeTryFromSoup(soupId, tryId)` - 移除尝试记录（验证所有权）
+- `deleteSoupWithTries(id)` - 级联删除汤谜题及所有尝试
 
 ## 扩展指南
 

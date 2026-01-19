@@ -14,6 +14,7 @@ import {
 	type BaseDbSoup,
 	type DbSoup,
 	DbSoupSchema,
+	type DbTry,
 	type Soup,
 	type Try,
 	TrySchema,
@@ -95,24 +96,6 @@ export async function deleteAllSoups(): Promise<void> {
 // ==================== Try CRUD Operations ====================
 
 /**
- * Create a new try record
- */
-export async function createTry(tryRecord: Try): Promise<string> {
-	// Runtime validation with Zod
-	const validatedTry = TrySchema.parse(tryRecord);
-	return await db.tries.add(validatedTry);
-}
-
-/**
- * Bulk create try records
- */
-export async function createTries(tries: Try[]): Promise<string[]> {
-	// Runtime validation with Zod
-	const validatedTries = tries.map((tryRecord) => TrySchema.parse(tryRecord));
-	return await db.tries.bulkAdd(validatedTries, { allKeys: true });
-}
-
-/**
  * Get try record by ID
  */
 export async function getTryById(id: string): Promise<Try | undefined> {
@@ -175,17 +158,30 @@ export async function deleteAllTries(): Promise<void> {
 // ==================== Relational Query Operations ====================
 
 /**
+ * Get tries by soup ID
+ */
+export async function getTriesBySoupId(soupId: string): Promise<DbTry[]> {
+	return await db.tries.where("soupId").equals(soupId).toArray();
+}
+
+/**
  * Get soup puzzle with all its try records
  */
 export async function getSoupById(soupId: string): Promise<Soup | null> {
 	const dbSoup = await getDbSoupById(soupId);
 	if (!dbSoup) return null;
 
-	const tries = await db.tries.bulkGet(dbSoup.tryIds);
-	const { tryIds: _, ...soup } = dbSoup;
+	const dbTries = await getTriesBySoupId(soupId);
+
+	// Convert DbTry to Try by removing database-specific fields
+	const tries: Try[] = dbTries.map(({ updateAt: _1, ...tryData }) => tryData);
+
 	return {
-		...soup,
-		tries: tries.filter((t): t is Try => t !== undefined),
+		id: dbSoup.id,
+		title: dbSoup.title,
+		surface: dbSoup.surface,
+		truth: dbSoup.truth,
+		tries,
 	};
 }
 
@@ -194,32 +190,31 @@ export async function getSoupById(soupId: string): Promise<Soup | null> {
  */
 export async function getAllSoups(): Promise<Soup[]> {
 	const dbSoups = await getAllDbSoups();
-	const allTries = await db.tries.toArray();
+	const allDbTries = await db.tries.toArray();
 
-	// Create a map of tries by ID for quick lookup
-	const triesMap = new Map<string, Try>();
-	for (const tryRecord of allTries) {
-		triesMap.set(tryRecord.id, tryRecord);
+	// Group tries by soupId for quick lookup
+	const triesBySoupId = new Map<string, Try[]>();
+	for (const dbTry of allDbTries) {
+		const { updateAt: _1, ...tryData } = dbTry;
+		const tries = triesBySoupId.get(dbTry.soupId) || [];
+		tries.push(tryData);
+		triesBySoupId.set(dbTry.soupId, tries);
 	}
 
-	// Convert DbSoup to Soup by replacing tryIds with actual Try objects
-	return dbSoups.map((dbSoup): Soup => {
-		const tries = dbSoup.tryIds
-			.map((tryId) => triesMap.get(tryId))
-			.filter((tryRecord): tryRecord is Try => tryRecord !== undefined);
-
-		return {
+	// Convert DbSoup to Soup with associated tries
+	return dbSoups.map(
+		(dbSoup): Soup => ({
 			id: dbSoup.id,
 			title: dbSoup.title,
 			surface: dbSoup.surface,
 			truth: dbSoup.truth,
-			tries,
-		};
-	});
+			tries: triesBySoupId.get(dbSoup.id) || [],
+		}),
+	);
 }
 
 /**
- * Add a try record to a soup puzzle
+ * Add a try record to a soup puzzle (atomic operation)
  */
 export async function addTryToSoup(
 	soupId: string,
@@ -228,33 +223,63 @@ export async function addTryToSoup(
 	// Runtime validation with Zod
 	const validatedTry = TrySchema.parse(tryRecord);
 
-	// Add try record
-	await createTry(validatedTry);
+	// Use transaction to ensure atomicity
+	await db.transaction("rw", [db.soups, db.tries], async () => {
+		// Verify soup exists within transaction
+		const soup = await db.soups.get(soupId);
+		if (!soup) {
+			throw new Error(`Soup with id ${soupId} does not exist`);
+		}
 
-	// Update soup's tryIds
-	const soup = await getDbSoupById(soupId);
-	if (soup) {
-		await updateSoup(soupId, {
-			tryIds: [...soup.tryIds, validatedTry.id],
-		});
-	}
+		// Add try record with database fields
+		const dbTry: DbTry = {
+			...validatedTry,
+			createAt: new Date().toISOString(),
+			updateAt: new Date().toISOString(),
+		};
+		await db.tries.add(dbTry);
+	});
 }
 
 /**
- * Remove a try record from a soup puzzle
+ * Remove a try record from a soup puzzle (atomic operation)
  */
 export async function removeTryFromSoup(
 	soupId: string,
 	tryId: string,
 ): Promise<void> {
-	// Delete try record
-	await deleteTry(tryId);
+	// Use transaction to ensure atomicity
+	await db.transaction("rw", [db.tries], async () => {
+		// Verify the try exists and belongs to this soup
+		const tryRecord = await db.tries.get(tryId);
+		if (!tryRecord) {
+			throw new Error(`Try ${tryId} does not exist`);
+		}
+		if (tryRecord.soupId !== soupId) {
+			throw new Error(`Try ${tryId} does not belong to soup ${soupId}`);
+		}
 
-	// Update soup's tryIds
-	const soup = await getDbSoupById(soupId);
-	if (soup) {
-		await updateSoup(soupId, {
-			tryIds: soup.tryIds.filter((id) => id !== tryId),
-		});
-	}
+		// Delete try record
+		await db.tries.delete(tryId);
+	});
+}
+
+/**
+ * Delete soup puzzle and all its try records (atomic cascade delete)
+ */
+export async function deleteSoupWithTries(id: string): Promise<void> {
+	// Use transaction to ensure atomicity
+	await db.transaction("rw", [db.soups, db.tries], async () => {
+		// Verify soup exists
+		const soup = await db.soups.get(id);
+		if (!soup) {
+			throw new Error(`Soup with id ${id} does not exist`);
+		}
+
+		// Delete all associated tries
+		await db.tries.where("soupId").equals(id).delete();
+
+		// Delete the soup
+		await db.soups.delete(id);
+	});
 }

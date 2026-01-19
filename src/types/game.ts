@@ -4,11 +4,34 @@ export const TryResponseSchema = z.enum(["yes", "no", "unrelated"]);
 
 export type TryResponse = z.infer<typeof TryResponseSchema>;
 
+const baseDbFields = {
+	id: z.string(),
+	updateAt: z.iso.datetime(),
+};
+
 const baseTry = {
 	id: z.string(),
+	soupId: z.string(),
 	createAt: z.iso.datetime(),
 	question: z.string(),
+	reason: z.string(),
 };
+
+export const DbTrySchema = z.discriminatedUnion("status", [
+	z.object({
+		status: z.literal("valid"),
+		...baseTry,
+		updateAt: z.iso.datetime(),
+		response: TryResponseSchema,
+	}),
+	z.object({
+		status: z.literal("invalid"),
+		...baseTry,
+		updateAt: z.iso.datetime(),
+	}),
+]);
+
+export type DbTry = z.infer<typeof DbTrySchema>;
 
 export const TrySchema = z.discriminatedUnion("status", [
 	z.object({
@@ -19,7 +42,6 @@ export const TrySchema = z.discriminatedUnion("status", [
 	z.object({
 		status: z.literal("invalid"),
 		...baseTry,
-		reason: z.string(),
 	}),
 ]);
 
@@ -32,7 +54,6 @@ const _baseSoup = {
 	surface: z.string(),
 	/* 汤底 */
 	truth: z.string(),
-	tryIds: z.array(z.string()),
 };
 
 export const BaseDbSoupSchema = z.object(_baseSoup);

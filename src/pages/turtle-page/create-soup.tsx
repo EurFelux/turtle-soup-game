@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createSoupFromAi } from "@/ai/game";
+import { createSoupFromAI } from "@/ai/game";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
@@ -26,7 +26,7 @@ const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
 					e.preventDefault();
 					setIsSubmiting(true);
 					try {
-						await createSoupFromAi({ userPrompt, locale, aiSettings });
+						await createSoupFromAI({ userPrompt, locale, aiSettings });
 					} finally {
 						setIsSubmiting(false);
 					}

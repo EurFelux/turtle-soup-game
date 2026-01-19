@@ -38,6 +38,11 @@
 			"main_game": {
 				"surface": {
 					"title": "Surface"
+				},
+				"try": {
+					"description": "Type a question which can be answered by \"Yes\", \"No\" or \"Unrelated.",
+					"submit": "Ask",
+					"title": "Ask"
 				}
 			}
 		}

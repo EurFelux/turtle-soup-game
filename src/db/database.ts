@@ -6,18 +6,18 @@
  */
 
 import Dexie, { type EntityTable } from "dexie";
-import type { DbSoup, Try } from "@/types";
+import type { DbSoup, DbTry } from "@/types";
 
 // Create database instance (not exported, for internal use only)
 const db = new Dexie("Turtle") as Dexie & {
 	soups: EntityTable<DbSoup, "id">;
-	tries: EntityTable<Try, "id">;
+	tries: EntityTable<DbTry, "id">;
 };
 
 // Define database version and table schemas
 db.version(1).stores({
-	soups: "id",
-	tries: "id, score",
+	soups: "id, createAt, updateAt",
+	tries: "id, soupId, createAt, updateAt",
 });
 
 // For internal use within db module only

@@ -69,10 +69,10 @@ const TurtlePage = () => {
 				></SoupList>
 			</div>
 			<Separator orientation="vertical" className="mx-2"></Separator>
-			<div className="flex-1">
+			<div className="min-w-0 flex-1">
 				<CreateSoupForm aiSettings={settings} />
 				<Separator className="my-2" />
-				{soup && <MainGame soup={soup} />}
+				{soup && <MainGame soup={soup} aiSettings={settings} />}
 			</div>
 			<Separator orientation="vertical" className="mx-2"></Separator>
 			<div className="w-80">

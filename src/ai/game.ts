@@ -5,10 +5,20 @@ import {
 import { generateText } from "ai";
 import { mutate } from "swr";
 import * as z from "zod";
-import { createSoupPrompt, LOCALE_VARIABLE } from "@/config/ai";
+import {
+	createSoupPrompt,
+	judgeTryPrompt,
+	LOCALE_VARIABLE,
+	TRUTH_VARIABLE,
+} from "@/config/ai";
 import { swrKeyMap } from "@/config/swr";
-import { createSoup } from "@/db";
-import type { AiSettings, LocaleCode } from "@/types";
+import { addTryToSoup, createSoup } from "@/db";
+import {
+	type AiSettings,
+	type LocaleCode,
+	type Try,
+	TryResponseSchema,
+} from "@/types";
 import { safeParseJson } from "@/utils/json";
 import { uuidv4 } from "@/utils/uuid";
 
@@ -37,7 +47,7 @@ type CreateSoupParams = {
 	signal?: AbortSignal;
 };
 
-export const createSoupFromAi = async ({
+export const createSoupFromAI = async ({
 	userPrompt = "",
 	aiSettings,
 	locale,
@@ -64,7 +74,7 @@ export const createSoupFromAi = async ({
 	}
 	const parsedSoup = CreateSoupResultSchema.safeParse(parsedJson.data);
 	if (!parsedSoup.success) {
-		throw new Error(`Failed to parse JSON: ${parsedJson}`);
+		throw new Error(`Invalid data: ${parsedSoup.error}`);
 	}
 	const soup = parsedSoup.data;
 	await createSoup({
@@ -72,8 +82,92 @@ export const createSoupFromAi = async ({
 		title: soup.title,
 		surface: soup.surface,
 		truth: soup.truth,
-		tryIds: [],
 	});
 	mutate(swrKeyMap.soups, (data) => [...(data || []), soup]);
 	return parsedSoup.data;
+};
+
+const CreateTryResultSchema = z.discriminatedUnion("status", [
+	z.object({
+		status: z.literal("valid"),
+		response: TryResponseSchema,
+		reason: z.string(),
+	}),
+	z.object({
+		status: z.literal("invalid"),
+		reason: z.string(),
+	}),
+]);
+
+type CreateTryParams = {
+	soupId: string;
+	userPrompt: string;
+	aiSettings: AiSettings;
+	locale: LocaleCode;
+	truth: string;
+	signal?: AbortSignal;
+};
+
+export const createTryFromAI = async ({
+	soupId,
+	userPrompt,
+	aiSettings,
+	locale,
+	truth,
+	signal,
+}: CreateTryParams) => {
+	const provider = createProvider(aiSettings);
+	const systemPrompt = judgeTryPrompt
+		.replaceAll(TRUTH_VARIABLE, truth)
+		.replaceAll(LOCALE_VARIABLE, locale);
+	if (!userPrompt) {
+		throw new Error("User prompt is required");
+	}
+	const result = await generateText({
+		model: provider.languageModel(aiSettings.model),
+		system: systemPrompt,
+		messages: [
+			{
+				role: "user",
+				content: userPrompt,
+			},
+		],
+		abortSignal: signal,
+	});
+	const parsedJson = safeParseJson(result.text);
+	if (!parsedJson.success) {
+		throw new Error(`Failed to parse JSON: ${parsedJson.error}`);
+	}
+	const parsedTry = CreateTryResultSchema.safeParse(parsedJson.data);
+	if (!parsedTry.success) {
+		throw new Error(`Invalid data: ${parsedTry.error}`);
+	}
+	const tryData = parsedTry.data;
+	let validatedTry: Try | undefined;
+	if (tryData.status === "valid") {
+		validatedTry = {
+			id: uuidv4(),
+			soupId,
+			createAt: new Date().toISOString(),
+			question: userPrompt,
+			status: tryData.status,
+			reason: tryData.reason,
+			response: tryData.response,
+		} satisfies Try;
+	} else {
+		validatedTry = {
+			id: uuidv4(),
+			soupId,
+			createAt: new Date().toISOString(),
+			question: userPrompt,
+			status: tryData.status,
+			reason: tryData.reason,
+		} satisfies Try;
+	}
+	await addTryToSoup(soupId, validatedTry);
+	mutate<Try[]>(swrKeyMap.tries(soupId), (data) => {
+		if (!data) return data;
+		return [...data, validatedTry];
+	});
+	return parsedTry.data;
 };
