@@ -1,6 +1,9 @@
 {
 	"ai": {
 		"settings": {
+			"alert": {
+				"local_storage": "All data is stored locally via IndexedDB, eliminating any concerns about sensitive data leakage."
+			},
 			"apiKey": {
 				"label": "Api Key"
 			},
@@ -20,11 +23,6 @@
 	},
 	"app": {
 		"title": "Turtle Soup Game"
-	},
-	"feedback": {
-		"success": {
-			"saved": "Saved"
-		}
 	},
 	"theme": {
 		"dark": "Dark",

@@ -1,6 +1,8 @@
+import { CheckCircleIcon } from "lucide-react";
 import { type ReactNode, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AiSettings, ProviderType } from "@/types";
+import { Alert } from "./ui/alert";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "./ui/field";
 import { InputGroup, InputGroupInput } from "./ui/input-group";
 import { Label } from "./ui/label";
@@ -67,6 +69,10 @@ const AiSettingsSection = ({
 
 	return (
 		<div className="rounded-lg bg-secondary p-4">
+			<Alert className="mb-2">
+				<CheckCircleIcon className="size-4" />
+				{t("ai.settings.alert.local_storage")}
+			</Alert>
 			<FieldSet>
 				<FieldGroup>
 					{/* Provider */}

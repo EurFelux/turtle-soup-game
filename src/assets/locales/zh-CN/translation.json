@@ -1,9 +1,11 @@
 {
 	"ai": {
 		"settings": {
+			"alert": {
+				"local_storage": "所有数据均通过 IndexedDB 储存在本地，无需担心敏感数据泄漏。"
+			},
 			"apiKey": {
-				"label": "API 密钥",
-				"placeholder": "sk-xxx"
+				"label": "API 密钥"
 			},
 			"baseUrl": {
 				"label": "Base URL"
@@ -21,11 +23,6 @@
 	},
 	"app": {
 		"title": "海龟汤游戏"
-	},
-	"feedback": {
-		"success": {
-			"saved": "已保存"
-		}
 	},
 	"theme": {
 		"dark": "深色",

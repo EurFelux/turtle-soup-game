@@ -1,3 +1,4 @@
+import type { InferUITools, ToolSet, UIMessage } from "ai";
 import * as z from "zod";
 
 const _ProviderTypeSchema = z.enum([
@@ -23,3 +24,19 @@ export const AiSettingsSchema = z.object({
 });
 
 export type AiSettings = z.infer<typeof AiSettingsSchema>;
+
+const _metadataSchema = z.object({
+	timestamp: z.iso.datetime(),
+});
+
+type MyMetadata = z.infer<typeof _metadataSchema>;
+
+const _dataPartSchema = z.object({});
+
+type MyDataPart = z.infer<typeof _dataPartSchema>;
+
+const _tools = {} satisfies ToolSet;
+
+type MyTools = InferUITools<typeof _tools>;
+
+export type MyUIMessage = UIMessage<MyMetadata, MyDataPart, MyTools>;
