@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { LanguagesIcon } from "lucide-react";
 import { type ReactNode } from "react";
 import { useLocale } from "@/hooks/useLocale";
@@ -30,6 +31,11 @@ const items: LocaleItem[] = [chineseSimplified, englishUnitedStates].map(
 export const LocaleSelect = () => {
 	const { locale, setLocale } = useLocale();
 
+	const updateLocale = (value: LocaleCode) => {
+		setLocale(value);
+		i18next.changeLanguage(value);
+	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger>
@@ -40,7 +46,7 @@ export const LocaleSelect = () => {
 			<DropdownMenuContent>
 				<DropdownMenuRadioGroup
 					value={locale}
-					onValueChange={(value: string) => setLocale(value as LocaleCode)}
+					onValueChange={(value: string) => updateLocale(value as LocaleCode)}
 				>
 					{items.map((item) => (
 						<DropdownMenuRadioItem key={item.value} value={item.value}>
