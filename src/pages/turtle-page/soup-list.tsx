@@ -51,16 +51,16 @@ const SoupList = ({
 	if (error) {
 		return (
 			<Alert className="w-full">
-				<XCircleIcon className="size-5 text-red-500" />
+				<XCircleIcon className="size-5 text-destructive" />
 				Something is wrong.
 			</Alert>
 		);
 	}
 
 	return (
-		<div className="" role="list">
+		<ul className="flex h-full flex-col gap-1.5 rounded-lg bg-secondary p-4">
 			{content}
-		</div>
+		</ul>
 	);
 };
 

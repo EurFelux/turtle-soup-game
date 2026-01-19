@@ -10,7 +10,11 @@ type SoupItemProps = {
 const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 	return (
 		<li
-			className={cn("h-5 w-full truncate", active && "bg-gray-200")}
+			className={cn(
+				"h-10 w-full cursor-pointer truncate rounded-lg p-2",
+				"hover:bg-secondary-hover",
+				active && "bg-primary text-primary-foreground hover:bg-primary-hover",
+			)}
 			onClick={onClick}
 		>
 			{soup.title}

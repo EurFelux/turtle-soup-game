@@ -11,6 +11,7 @@
  */
 
 import {
+	type BaseDbSoup,
 	type DbSoup,
 	DbSoupSchema,
 	type Soup,
@@ -24,18 +25,28 @@ import db from "./database";
 /**
  * Create a new soup puzzle
  */
-export async function createSoup(soup: DbSoup): Promise<string> {
+export async function createSoup(soup: BaseDbSoup): Promise<string> {
 	// Runtime validation with Zod
-	const validatedSoup = DbSoupSchema.parse(soup);
+	const dbSoup = {
+		...soup,
+		createAt: new Date().toISOString(),
+		updateAt: new Date().toISOString(),
+	} satisfies DbSoup;
+	const validatedSoup = DbSoupSchema.parse(dbSoup);
 	return await db.soups.add(validatedSoup);
 }
 
 /**
  * Bulk create soup puzzles
  */
-export async function createSoups(soups: DbSoup[]): Promise<string[]> {
+export async function createSoups(soups: BaseDbSoup[]): Promise<string[]> {
 	// Runtime validation with Zod
-	const validatedSoups = soups.map((soup) => DbSoupSchema.parse(soup));
+	const dbSoups = soups.map((soup) => ({
+		...soup,
+		createAt: new Date().toISOString(),
+		updateAt: new Date().toISOString(),
+	}));
+	const validatedSoups = dbSoups.map((soup) => DbSoupSchema.parse(soup));
 	return await db.soups.bulkAdd(validatedSoups, { allKeys: true });
 }
 

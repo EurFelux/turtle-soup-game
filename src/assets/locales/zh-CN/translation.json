@@ -25,6 +25,23 @@
 	"app": {
 		"title": "海龟汤游戏"
 	},
+	"page": {
+		"turtle": {
+			"create_soup": {
+				"create": "创作",
+				"prompt": {
+					"label": "创作主题",
+					"placeholder": "留空以随机创作新故事"
+				},
+				"title": "创作新故事"
+			},
+			"main_game": {
+				"surface": {
+					"title": "汤面"
+				}
+			}
+		}
+	},
 	"theme": {
 		"dark": "深色",
 		"light": "浅色",

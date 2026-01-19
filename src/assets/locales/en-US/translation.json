@@ -25,6 +25,23 @@
 	"app": {
 		"title": "Turtle Soup Game"
 	},
+	"page": {
+		"turtle": {
+			"create_soup": {
+				"create": "Create",
+				"prompt": {
+					"label": "Creative Theme",
+					"placeholder": "Leave blank to randomly create a new story"
+				},
+				"title": "Create New Story"
+			},
+			"main_game": {
+				"surface": {
+					"title": "Surface"
+				}
+			}
+		}
+	},
 	"theme": {
 		"dark": "Dark",
 		"light": "Light",
