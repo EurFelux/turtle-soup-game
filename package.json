@@ -6,8 +6,8 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
-		"lint": "eslint .",
-		"lint:fix": "eslint . --fix",
+		"lint": "biome lint . && eslint .",
+		"lint:fix": "biome lint --write && eslint . --fix",
 		"format": "biome format --write",
 		"preview": "vite preview"
 	},

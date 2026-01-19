@@ -58,6 +58,9 @@
 					"name": "biome"
 				}
 			}
+		},
+		"CSS": {
+			"language_servers": ["tailwindcss-language-server"]
 		}
 	}
 }
