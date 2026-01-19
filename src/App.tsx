@@ -1,4 +1,3 @@
-import "./App.css";
 import TurtlePage from "./pages/turtle-page";
 
 function App() {
