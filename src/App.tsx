@@ -5,6 +5,7 @@ import zhCN from "@/assets/locales/zh-CN/translation.json";
 import NavBar from "./components/navbar";
 import { LocaleProvider } from "./components/provider/locale-provider";
 import { ThemeProvider } from "./components/provider/theme-provider";
+import { Toaster } from "./components/ui/sonner";
 import { defaultLocale } from "./config/locale";
 import TurtlePage from "./pages/turtle-page";
 
@@ -30,10 +31,11 @@ function App() {
 	return (
 		<ThemeProvider>
 			<LocaleProvider>
-				<NavBar></NavBar>
+				<NavBar />
 				<main>
 					<TurtlePage />;
 				</main>
+				<Toaster />
 			</LocaleProvider>
 		</ThemeProvider>
 	);

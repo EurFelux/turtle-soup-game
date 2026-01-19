@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { LocalStorageKeyMap } from "@/config/storage";
 import { ThemeProviderContext } from "@/context/theme";
 import type { Theme } from "@/types";
 
@@ -11,7 +12,7 @@ type ThemeProviderProps = {
 export function ThemeProvider({
 	children,
 	defaultTheme = "system",
-	storageKey = "vite-ui-theme",
+	storageKey = LocalStorageKeyMap.theme,
 	...props
 }: ThemeProviderProps) {
 	const [theme, setTheme] = useState<Theme>(

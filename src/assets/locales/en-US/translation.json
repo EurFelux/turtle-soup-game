@@ -1,6 +1,30 @@
 {
+	"ai": {
+		"settings": {
+			"apiKey": {
+				"label": "Api Key"
+			},
+			"baseUrl": {
+				"label": "Base URL"
+			},
+			"model": {
+				"label": "Model"
+			},
+			"provider": {
+				"label": "Provider"
+			},
+			"providerType": {
+				"label": "Provider Type"
+			}
+		}
+	},
 	"app": {
 		"title": "Turtle Soup Game"
+	},
+	"feedback": {
+		"success": {
+			"saved": "Saved"
+		}
 	},
 	"theme": {
 		"dark": "Dark",

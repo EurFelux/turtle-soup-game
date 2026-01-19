@@ -1,6 +1,31 @@
 {
+	"ai": {
+		"settings": {
+			"apiKey": {
+				"label": "API 密钥",
+				"placeholder": "sk-xxx"
+			},
+			"baseUrl": {
+				"label": "Base URL"
+			},
+			"model": {
+				"label": "模型"
+			},
+			"provider": {
+				"label": "提供商"
+			},
+			"providerType": {
+				"label": "提供商类型"
+			}
+		}
+	},
 	"app": {
 		"title": "海龟汤游戏"
+	},
+	"feedback": {
+		"success": {
+			"saved": "已保存"
+		}
 	},
 	"theme": {
 		"dark": "深色",
