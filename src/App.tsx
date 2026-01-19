@@ -33,7 +33,7 @@ function App() {
 			<LocaleProvider>
 				<NavBar />
 				<main>
-					<TurtlePage />;
+					<TurtlePage />
 				</main>
 				<Toaster />
 			</LocaleProvider>
