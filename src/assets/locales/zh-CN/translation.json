@@ -2,7 +2,7 @@
 	"ai": {
 		"settings": {
 			"alert": {
-				"local_storage": "所有数据均通过 IndexedDB 储存在本地，无需担心敏感数据泄漏。"
+				"local_storage": "所有数据均储存在本地，无需担心敏感数据泄漏。"
 			},
 			"apiKey": {
 				"label": "API 密钥"

@@ -1,6 +1,7 @@
 import { CheckCircleIcon } from "lucide-react";
 import { type ReactNode, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 import type { AiSettings, ProviderType } from "@/types";
 import {
 	Accordion,
@@ -22,6 +23,7 @@ type AiSettingsSectionProps = {
 type ProviderTypeItem = {
 	value: ProviderType;
 	label: ReactNode;
+	available?: true;
 };
 
 const AiSettingsSection = ({
@@ -63,8 +65,21 @@ const AiSettingsSection = ({
 		[updateSettings],
 	);
 
+	const [baseUrl, setBaseUrl] = useState<string>(settings.baseUrl);
+	const updateBaseUrl = useCallback(
+		(value: string) => {
+			setBaseUrl(value);
+			updateSettings({ baseUrl: value });
+		},
+		[updateSettings],
+	);
+
 	const providerTypeItems = [
-		{ value: "openai-chat", label: "OpenAI (Chat Completions API)" },
+		{
+			value: "openai-chat",
+			label: "OpenAI (Chat Completions API)",
+			available: true,
+		},
 		{
 			value: "openai-responses",
 			label: "OpenAI (Responses API)",
@@ -123,8 +138,16 @@ const AiSettingsSection = ({
 													key={item.value}
 													value={item.value}
 													id={item.value}
+													disabled={!item.available}
 												></RadioGroupItem>
-												<Label htmlFor={item.value}>{item.label}</Label>
+												<Label
+													htmlFor={item.value}
+													className={cn(
+														!item.available && "cursor-not-allowed opacity-50",
+													)}
+												>
+													{item.label}
+												</Label>
 											</div>
 										))}
 									</RadioGroup>
@@ -167,7 +190,16 @@ const AiSettingsSection = ({
 							<Field>
 								<FieldLabel>{t("ai.settings.baseUrl.label")}</FieldLabel>
 								<InputGroup>
-									<InputGroupInput placeholder={"https://api.openai.com/v1"} />
+									<InputGroupInput
+										value={baseUrl}
+										onChange={(e) => {
+											setBaseUrl(e.target.value);
+										}}
+										onBlur={(e) => {
+											updateBaseUrl(e.target.value);
+										}}
+										placeholder={"https://api.openai.com/v1"}
+									/>
 								</InputGroup>
 							</Field>
 						</FieldSet>

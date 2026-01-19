@@ -2,7 +2,7 @@
 	"ai": {
 		"settings": {
 			"alert": {
-				"local_storage": "All data is stored locally via IndexedDB, eliminating any concerns about sensitive data leakage."
+				"local_storage": "All data is stored locally, eliminating any concerns about sensitive data leakage."
 			},
 			"apiKey": {
 				"label": "Api Key"
