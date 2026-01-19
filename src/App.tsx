@@ -1,14 +1,18 @@
 import NavBar from "./components/navbar";
+import { LocaleProvider } from "./components/provider/locale-provider";
+import { ThemeProvider } from "./components/provider/theme-provider";
 import TurtlePage from "./pages/turtle-page";
 
 function App() {
 	return (
-		<>
-			<NavBar></NavBar>
-			<main>
-				<TurtlePage />;
-			</main>
-		</>
+		<ThemeProvider>
+			<LocaleProvider>
+				<NavBar></NavBar>
+				<main>
+					<TurtlePage />;
+				</main>
+			</LocaleProvider>
+		</ThemeProvider>
 	);
 }
 

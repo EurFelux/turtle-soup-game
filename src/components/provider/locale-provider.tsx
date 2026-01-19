@@ -7,7 +7,7 @@ type LocaleProviderProps = {
 	storageKey?: string;
 };
 
-export function ThemeProvider({
+export function LocaleProvider({
 	children,
 	storageKey = "locale",
 	...props

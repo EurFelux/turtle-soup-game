@@ -6,7 +6,7 @@ import { ThemeToggleButotn } from "./theme-toggle-button";
 const NavBar = () => {
 	const { t } = useTranslation();
 	return (
-		<header className="flex justify-between p-2">
+		<header className="flex justify-between bg-secondary p-2">
 			<span className="mr-2">{t("app.title")}</span>
 			{/* Tool Buttons */}
 			<div className="flex gap-1">
