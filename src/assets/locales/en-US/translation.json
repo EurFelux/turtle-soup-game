@@ -18,7 +18,8 @@
 			},
 			"providerType": {
 				"label": "Provider Type"
-			}
+			},
+			"title": "AI Provider Settings"
 		}
 	},
 	"app": {

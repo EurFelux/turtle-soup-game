@@ -18,7 +18,8 @@
 			},
 			"providerType": {
 				"label": "提供商类型"
-			}
+			},
+			"title": "AI 提供商设置"
 		}
 	},
 	"app": {
