@@ -72,11 +72,14 @@ export async function updateSoup(
 	id: string,
 	changes: Partial<Omit<DbSoup, "id">>,
 ): Promise<number> {
-	// Runtime validation with Zod (partial schema)
-	const validatedChanges = DbSoupSchema.partial()
-		.omit({ id: true })
-		.parse(changes);
-	return await db.soups.update(id, validatedChanges);
+	return db.soups.update(id, changes);
+}
+
+/**
+ * Set soup puzzle
+ */
+export async function setSoup(changes: DbSoup): Promise<string> {
+	return db.soups.put(changes);
 }
 
 /**
@@ -176,13 +179,29 @@ export async function getSoupById(soupId: string): Promise<Soup | null> {
 	// Convert DbTry to Try by removing database-specific fields
 	const tries: Try[] = dbTries.map(({ updateAt: _1, ...tryData }) => tryData);
 
-	return {
-		id: dbSoup.id,
-		title: dbSoup.title,
-		surface: dbSoup.surface,
-		truth: dbSoup.truth,
-		tries,
-	};
+	if (dbSoup.status === "resolved") {
+		return {
+			id: dbSoup.id,
+			title: dbSoup.title,
+			surface: dbSoup.surface,
+			truth: dbSoup.truth,
+			tries,
+			status: "resolved",
+			solution: dbSoup.solution,
+			score: dbSoup.score,
+		};
+	} else if (dbSoup.status === "unresolved") {
+		return {
+			id: dbSoup.id,
+			title: dbSoup.title,
+			surface: dbSoup.surface,
+			truth: dbSoup.truth,
+			tries,
+			status: "unresolved",
+		};
+	} else {
+		throw new Error("Unexpected branch.");
+	}
 }
 
 /**
@@ -202,15 +221,31 @@ export async function getAllSoups(): Promise<Soup[]> {
 	}
 
 	// Convert DbSoup to Soup with associated tries
-	return dbSoups.map(
-		(dbSoup): Soup => ({
-			id: dbSoup.id,
-			title: dbSoup.title,
-			surface: dbSoup.surface,
-			truth: dbSoup.truth,
-			tries: triesBySoupId.get(dbSoup.id) || [],
-		}),
-	);
+	return dbSoups.map((dbSoup): Soup => {
+		if (dbSoup.status === "resolved") {
+			return {
+				id: dbSoup.id,
+				title: dbSoup.title,
+				surface: dbSoup.surface,
+				truth: dbSoup.truth,
+				tries: triesBySoupId.get(dbSoup.id) || [],
+				status: "resolved",
+				solution: dbSoup.solution,
+				score: dbSoup.score,
+			};
+		} else if (dbSoup.status === "unresolved") {
+			return {
+				id: dbSoup.id,
+				title: dbSoup.title,
+				surface: dbSoup.surface,
+				truth: dbSoup.truth,
+				tries: triesBySoupId.get(dbSoup.id) || [],
+				status: "unresolved",
+			};
+		} else {
+			throw new Error("Unexpected branch.");
+		}
+	});
 }
 
 /**

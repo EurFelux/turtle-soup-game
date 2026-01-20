@@ -30,12 +30,18 @@
 			"create_soup": {
 				"create": "创作",
 				"prompt": {
+					"generate": "随机主题",
 					"label": "创作主题",
 					"placeholder": "留空以随机创作新故事"
 				},
 				"title": "创作新故事"
 			},
 			"main_game": {
+				"solve": {
+					"description": "试着讲述真相吧！",
+					"submit": "提交",
+					"title": "事件的真相，我已解明"
+				},
 				"surface": {
 					"title": "汤面"
 				},

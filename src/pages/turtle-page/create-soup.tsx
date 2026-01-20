@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { WandSparklesIcon } from "lucide-react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createSoupFromAI } from "@/ai/game";
+import { createSoupFromAI } from "@/business/ai";
+import { createInspirationPrompt } from "@/business/inspiration";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
@@ -17,6 +19,11 @@ const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
 	const { locale } = useLocale();
 	const [userPrompt, setUserPrompt] = useState<string>("");
 	const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
+
+	const handleCreatePrompt = useCallback(() => {
+		const prompt = createInspirationPrompt({ locale });
+		setUserPrompt(prompt);
+	}, [locale]);
 
 	return (
 		<div className="rounded-lg bg-secondary p-4">
@@ -42,7 +49,15 @@ const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
 						className="mb-2"
 					/>
 				</Field>
-				<div className="flex justify-end">
+				<div className="flex justify-between">
+					<Button
+						type="button"
+						disabled={isSubmiting}
+						onClick={handleCreatePrompt}
+					>
+						<WandSparklesIcon className="size-4" />
+						{t("page.turtle.create_soup.prompt.generate")}
+					</Button>
 					<Button type="submit" disabled={isSubmiting}>
 						{isSubmiting ? <Spinner /> : t("page.turtle.create_soup.create")}
 					</Button>

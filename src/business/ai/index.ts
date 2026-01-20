@@ -7,15 +7,23 @@ import { mutate } from "swr";
 import * as z from "zod";
 import {
 	createSoupPrompt,
+	evaluateSolutionPrompt,
+	evaluateSolutionPromptContext,
+	judgeSolutionPrompt,
+	judgeSolutionPromptContext,
 	judgeTryPrompt,
 	LOCALE_VARIABLE,
+	SOLUTION_VARIABLE,
+	TRIES_VARIABLE,
 	TRUTH_VARIABLE,
 } from "@/config/ai";
 import { swrKeyMap } from "@/config/swr";
-import { addTryToSoup, createSoup } from "@/db";
+import { addTryToSoup, createSoup, getDbSoupById, setSoup } from "@/db";
 import {
 	type AiSettings,
+	type DbSoup,
 	type LocaleCode,
+	type Soup,
 	type Try,
 	TryResponseSchema,
 } from "@/types";
@@ -79,6 +87,7 @@ export const createSoupFromAI = async ({
 	const soup = parsedSoup.data;
 	await createSoup({
 		id: uuidv4(),
+		status: "unresolved",
 		title: soup.title,
 		surface: soup.surface,
 		truth: soup.truth,
@@ -170,4 +179,123 @@ export const createTryFromAI = async ({
 		return [...data, validatedTry];
 	});
 	return parsedTry.data;
+};
+
+const CreateSolutionResultSchema = z.object({
+	solution: z.string(),
+	score: z.number().int().min(0).max(100),
+});
+
+type CreateSolutionParams = {
+	soup: Soup;
+	userSolution: string;
+	aiSettings: AiSettings;
+	locale: LocaleCode;
+	signal?: AbortSignal;
+};
+
+export const createSolutionFromAI = async ({
+	soup,
+	userSolution,
+	aiSettings,
+	locale,
+	signal,
+}: CreateSolutionParams) => {
+	const provider = createProvider(aiSettings);
+
+	if (!userSolution) {
+		throw new Error("User solution is required");
+	}
+
+	const judgePrompt = judgeSolutionPrompt.replaceAll(
+		TRUTH_VARIABLE,
+		soup.truth,
+	);
+
+	const judgeResult = await generateText({
+		model: provider.languageModel(aiSettings.model),
+		system: judgePrompt,
+		messages: [
+			{
+				role: "user",
+				content: judgeSolutionPromptContext
+					.replaceAll(TRUTH_VARIABLE, soup.truth)
+					.replaceAll(SOLUTION_VARIABLE, userSolution),
+			},
+		],
+		abortSignal: signal,
+	});
+
+	const isCorrect = judgeResult.text.trim().toLowerCase() === "true";
+
+	if (!isCorrect) {
+		throw new Error("Solution is incorrect");
+	}
+
+	// 第二步：生成评分和总结
+	// 格式化提问历史为可读文本
+	const triesText = soup.tries
+		.map((tryItem, index) => {
+			if (tryItem.status === "valid") {
+				return `${index + 1}. Q: ${tryItem.question}\n   A: ${tryItem.response} (${tryItem.reason})`;
+			}
+			return `${index + 1}. Q: ${tryItem.question}\n   A: invalid (${tryItem.reason})`;
+		})
+		.join("\n");
+
+	const evaluatePrompt = evaluateSolutionPrompt.replaceAll(
+		LOCALE_VARIABLE,
+		locale,
+	);
+
+	const evaluateResult = await generateText({
+		model: provider.languageModel(aiSettings.model),
+		system: evaluatePrompt,
+		messages: [
+			{
+				role: "user",
+				content: evaluateSolutionPromptContext
+					.replaceAll(TRUTH_VARIABLE, soup.truth)
+					.replaceAll(SOLUTION_VARIABLE, userSolution)
+					.replaceAll(TRIES_VARIABLE, triesText),
+			},
+		],
+		abortSignal: signal,
+	});
+
+	const parsedJson = safeParseJson(evaluateResult.text);
+	if (!parsedJson.success) {
+		throw new Error(`Failed to parse JSON: ${parsedJson.error}`);
+	}
+
+	const parsedSolution = CreateSolutionResultSchema.safeParse(parsedJson.data);
+	if (!parsedSolution.success) {
+		return;
+	}
+
+	const solutionData = parsedSolution.data;
+
+	// 从数据库读取原始 soup 以获取 createAt 字段
+	const dbSoup = await getDbSoupById(soup.id);
+	if (!dbSoup) {
+		throw new Error(`Soup with id ${soup.id} not found in database`);
+	}
+
+	// 更新数据库中的 soup 状态
+	await setSoup({
+		id: soup.id,
+		title: soup.title,
+		surface: soup.surface,
+		truth: soup.truth,
+		status: "resolved",
+		solution: solutionData.solution,
+		score: solutionData.score,
+		createAt: dbSoup.createAt,
+		updateAt: new Date().toISOString(),
+	} satisfies DbSoup);
+
+	// 更新 SWR 缓存
+	mutate(swrKeyMap.soups);
+
+	return solutionData;
 };

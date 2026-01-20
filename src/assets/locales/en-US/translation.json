@@ -30,12 +30,18 @@
 			"create_soup": {
 				"create": "Create",
 				"prompt": {
+					"generate": "Random Theme",
 					"label": "Creative Theme",
 					"placeholder": "Leave blank to randomly create a new story"
 				},
 				"title": "Create New Story"
 			},
 			"main_game": {
+				"solve": {
+					"description": "Try to describe the truth!",
+					"submit": "Submit",
+					"title": "Solve"
+				},
 				"surface": {
 					"title": "Surface"
 				},

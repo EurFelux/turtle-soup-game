@@ -7,6 +7,7 @@ export type TryResponse = z.infer<typeof TryResponseSchema>;
 const baseDbFields = {
 	id: z.string(),
 	updateAt: z.iso.datetime(),
+	createAt: z.iso.datetime(),
 };
 
 const baseTry = {
@@ -21,12 +22,13 @@ export const DbTrySchema = z.discriminatedUnion("status", [
 	z.object({
 		status: z.literal("valid"),
 		...baseTry,
-		updateAt: z.iso.datetime(),
+		...baseDbFields,
 		response: TryResponseSchema,
 	}),
 	z.object({
 		status: z.literal("invalid"),
 		...baseTry,
+		...baseDbFields,
 		updateAt: z.iso.datetime(),
 	}),
 ]);
@@ -56,26 +58,59 @@ const _baseSoup = {
 	truth: z.string(),
 };
 
-export const BaseDbSoupSchema = z.object(_baseSoup);
+export const BaseDbSoupSchema = z.discriminatedUnion("status", [
+	z.object({
+		status: z.literal("unresolved"),
+		..._baseSoup,
+	}),
+	z.object({
+		status: z.literal("resolved"),
+		..._baseSoup,
+		solution: z.string(),
+		score: z.number(),
+	}),
+]);
 
 export type BaseDbSoup = z.infer<typeof BaseDbSoupSchema>;
 
-export const DbSoupSchema = z.object({
-	..._baseSoup,
-	createAt: z.iso.datetime(),
-	updateAt: z.iso.datetime(),
-});
+export const DbSoupSchema = z.discriminatedUnion("status", [
+	z.object({
+		status: z.literal("unresolved"),
+		..._baseSoup,
+		...baseDbFields,
+	}),
+	z.object({
+		status: z.literal("resolved"),
+		..._baseSoup,
+		...baseDbFields,
+		solution: z.string(),
+		score: z.number(),
+	}),
+]);
 
 export type DbSoup = z.infer<typeof DbSoupSchema>;
 
-export const SoupSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	/* 汤面 */
-	surface: z.string(),
-	/* 汤底 */
-	truth: z.string(),
-	tries: z.array(TrySchema),
-});
+export const SoupSchema = z.discriminatedUnion("status", [
+	z.object({
+		status: z.literal("unresolved"),
+		id: z.string(),
+		title: z.string(),
+		/* 汤面 */
+		surface: z.string(),
+		/* 汤底 */
+		truth: z.string(),
+		tries: z.array(TrySchema),
+	}),
+	z.object({
+		status: z.literal("resolved"),
+		id: z.string(),
+		title: z.string(),
+		surface: z.string(),
+		truth: z.string(),
+		tries: z.array(TrySchema),
+		solution: z.string(),
+		score: z.number(),
+	}),
+]);
 
 export type Soup = z.infer<typeof SoupSchema>;

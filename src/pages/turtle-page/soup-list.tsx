@@ -52,7 +52,7 @@ const SoupList = ({
 		return (
 			<Alert className="w-full">
 				<XCircleIcon className="size-5 text-destructive" />
-				Something is wrong.
+				Something is wrong: {String(error)}
 			</Alert>
 		);
 	}
