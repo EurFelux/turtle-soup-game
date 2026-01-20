@@ -1,10 +1,5 @@
 import { uuidv4 } from "@/utils/uuid";
 
-type TaskEntity = {
-	id: string;
-	abort: () => void;
-};
-
 const taskMap = new Map();
 
 export const addTask = (task: () => Promise<unknown>) => {
