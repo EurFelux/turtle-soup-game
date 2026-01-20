@@ -290,7 +290,8 @@ export const createSolutionFromAI = async ({
 					.replaceAll(TRUTH_VARIABLE, soup.truth)
 					.replaceAll(SURFACE_VARIABLE, soup.surface)
 					.replaceAll(SOLUTION_VARIABLE, userSolution)
-					.replaceAll(TRIES_VARIABLE, triesText),
+					.replaceAll(TRIES_VARIABLE, triesText)
+					.replaceAll(HINTS_VARIABLE, String(soup.hints.length)),
 			},
 		],
 		abortSignal: signal,
