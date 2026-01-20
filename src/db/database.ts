@@ -20,5 +20,23 @@ db.version(1).stores({
 	tries: "id, soupId, createAt, updateAt",
 });
 
+// Version 2: Add hints field to soups
+db.version(2)
+	.stores({
+		soups: "id, createAt, updateAt",
+		tries: "id, soupId, createAt, updateAt",
+	})
+	.upgrade((tx) => {
+		// Add hints field to existing soups
+		return tx
+			.table("soups")
+			.toCollection()
+			.modify((soup) => {
+				if (!soup.hints) {
+					soup.hints = [];
+				}
+			});
+	});
+
 // For internal use within db module only
 export default db;
