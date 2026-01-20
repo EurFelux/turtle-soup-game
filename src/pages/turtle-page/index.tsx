@@ -59,8 +59,8 @@ const TurtlePage = () => {
 	const soup = soups?.find((soup) => soup.id === activeSoupId);
 
 	return (
-		<div className="flex flex-1 p-8">
-			<div className="w-60">
+		<div className="flex flex-1 flex-col gap-4 p-4 xl:flex-row xl:gap-0 xl:p-8">
+			<div className="w-full xl:w-60">
 				<SoupList
 					soups={soups}
 					error={error}
@@ -68,14 +68,20 @@ const TurtlePage = () => {
 					setActiveSoupId={setActiveSoupId}
 				></SoupList>
 			</div>
-			<Separator orientation="vertical" className="mx-2"></Separator>
+			<Separator
+				orientation="vertical"
+				className="mx-2 hidden xl:block"
+			></Separator>
 			<div className="min-w-0 flex-1">
 				<CreateSoupForm aiSettings={settings} />
 				<Separator className="my-2" />
 				{soup && <MainGame soup={soup} aiSettings={settings} />}
 			</div>
-			<Separator orientation="vertical" className="mx-2"></Separator>
-			<div className="w-80">
+			<Separator
+				orientation="vertical"
+				className="mx-2 hidden xl:block"
+			></Separator>
+			<div className="w-full xl:w-80">
 				<AiSettingsSection settings={settings} setSettings={setSettings} />
 			</div>
 		</div>
