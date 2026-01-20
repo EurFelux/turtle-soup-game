@@ -175,8 +175,8 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 						<h2 className="mb-4 text-2xl">
 							{t("page.turtle.main_game.solve.title")} - {soup.score} 分
 						</h2>
-						<ScrollArea className="h-96 overflow-auto whitespace-pre-wrap">
-							<p>{soup.explanation}</p>
+						<ScrollArea className="max-h-96 overflow-auto whitespace-pre-wrap rounded-lg border p-4">
+							<p>{soup.solution}</p>
 						</ScrollArea>
 					</section>
 					<Separator className="m-2" />
