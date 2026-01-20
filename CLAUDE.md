@@ -20,17 +20,13 @@ pnpm preview          # Preview production build locally
 pnpm lint             # Run both Biome and ESLint
 pnpm lint:fix         # Auto-fix linting issues
 pnpm format           # Format code with Biome (tab indents, double quotes)
+pnpm typecheck        # Run TypeScript type checking (checks all project references)
 ```
 
 ### Internationalization
 ```bash
 pnpm i18n:extract     # Extract translation keys from source
 pnpm i18n:status      # Check translation coverage status
-```
-
-### Type Checking
-```bash
-npx tsc --noEmit      # Run TypeScript type checking without emitting files
 ```
 
 ## Architecture
@@ -113,6 +109,12 @@ All settings use Zod validation for runtime type safety when loading from localS
 
 ### Import Aliases
 - `@/*` → `src/*` (configured in `vite.config.ts` and `tsconfig.json`)
+
+### TypeScript Project References
+- This project uses TypeScript Project References for better organization
+- Root `tsconfig.json` references `tsconfig.app.json` (src code) and `tsconfig.node.json` (build config)
+- Use `pnpm typecheck` or `tsc -b --noEmit` to check all project references
+- Build command `pnpm build` runs `tsc -b` before Vite bundling
 
 ## Special Considerations
 
