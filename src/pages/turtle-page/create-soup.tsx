@@ -32,6 +32,7 @@ const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
 			e.preventDefault();
 			if (!checkAiSettings(aiSettings)) {
 				toast.error(t("page.turtle.create_soup.ai_settings_error"));
+				return;
 			}
 			setIsSubmiting(true);
 			try {
