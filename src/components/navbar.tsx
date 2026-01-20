@@ -1,7 +1,9 @@
+import { GithubIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import turtle from "@/assets/turtle.svg";
 import { LocaleSelect } from "./locale-select";
 import { ThemeToggleButotn } from "./theme-toggle-button";
+import { Button } from "./ui/button";
 
 const NavBar = () => {
 	const { t } = useTranslation();
@@ -13,7 +15,17 @@ const NavBar = () => {
 			</div>
 
 			{/* Tool Buttons */}
-			<div className="flex gap-1">
+			<div className="flex items-center gap-1">
+				<a
+					href="https://github.com/EurFelux/turtle-soup-game"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="GitHub"
+				>
+					<Button>
+						<GithubIcon className="size-4" />
+					</Button>
+				</a>
 				<LocaleSelect></LocaleSelect>
 				<ThemeToggleButotn></ThemeToggleButotn>
 			</div>
