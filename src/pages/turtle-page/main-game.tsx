@@ -209,7 +209,11 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 									}}
 									disabled={isRequesting}
 									onKeyDown={async (e) => {
-										if (submitQuestionButtonDisabled) return;
+										if (
+											submitQuestionButtonDisabled ||
+											e.nativeEvent.isComposing
+										)
+											return;
 										if (e.key === "Enter") {
 											return submitQuestion();
 										}
