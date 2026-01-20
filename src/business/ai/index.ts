@@ -1,9 +1,9 @@
-import { AnthropicProvider, createAnthropic } from "@ai-sdk/anthropic";
+import { type AnthropicProvider, createAnthropic } from "@ai-sdk/anthropic";
 import {
 	createGoogleGenerativeAI,
 	type GoogleGenerativeAIProvider,
 } from "@ai-sdk/google";
-import { createOpenAI, OpenAIProvider } from "@ai-sdk/openai";
+import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
 import {
 	createOpenAICompatible,
 	type OpenAICompatibleProvider,
