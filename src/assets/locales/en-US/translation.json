@@ -50,6 +50,9 @@
 					"submit": "Ask",
 					"title": "Ask"
 				}
+			},
+			"try_list": {
+				"empty": "No tries yet"
 			}
 		}
 	},

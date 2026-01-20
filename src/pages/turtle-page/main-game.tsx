@@ -69,7 +69,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	const submitButtonDisabled = !question || isRequesting;
 
 	return (
-		<div className="flex flex-col gap-2 bg-secondary">
+		<div className="flex flex-col gap-2 rounded-lg bg-secondary">
 			{/* Surface */}
 			<section className="rounded-lg bg-secondary p-4">
 				<h2 className="mb-4 text-2xl">

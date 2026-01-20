@@ -50,6 +50,9 @@
 					"submit": "询问",
 					"title": "询问"
 				}
+			},
+			"try_list": {
+				"empty": "无尝试"
 			}
 		}
 	},
