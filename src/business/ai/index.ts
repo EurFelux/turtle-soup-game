@@ -9,11 +9,14 @@ import {
 	createSoupPrompt,
 	evaluateSolutionPrompt,
 	evaluateSolutionPromptContext,
+	giveUpPrompt,
+	giveUpPromptContext,
 	judgeSolutionPrompt,
 	judgeSolutionPromptContext,
 	judgeTryPrompt,
 	LOCALE_VARIABLE,
 	SOLUTION_VARIABLE,
+	SURFACE_VARIABLE,
 	TRIES_VARIABLE,
 	TRUTH_VARIABLE,
 } from "@/config/ai";
@@ -298,4 +301,61 @@ export const createSolutionFromAI = async ({
 	mutate(swrKeyMap.soups);
 
 	return solutionData;
+};
+
+type GiveUpParams = {
+	soup: Soup;
+	aiSettings: AiSettings;
+	locale: LocaleCode;
+	signal?: AbortSignal;
+};
+
+export const giveUpSoupFromAI = async ({
+	soup,
+	aiSettings,
+	locale,
+	signal,
+}: GiveUpParams) => {
+	const provider = createProvider(aiSettings);
+
+	const systemPrompt = giveUpPrompt.replaceAll(LOCALE_VARIABLE, locale);
+
+	const result = await generateText({
+		model: provider.languageModel(aiSettings.model),
+		system: systemPrompt,
+		messages: [
+			{
+				role: "user",
+				content: giveUpPromptContext
+					.replaceAll(SURFACE_VARIABLE, soup.surface)
+					.replaceAll(TRUTH_VARIABLE, soup.truth),
+			},
+		],
+		abortSignal: signal,
+	});
+
+	const explanation = result.text.trim();
+
+	// 从数据库读取原始 soup 以获取 createAt 字段
+	const dbSoup = await getDbSoupById(soup.id);
+	if (!dbSoup) {
+		throw new Error(`Soup with id ${soup.id} not found in database`);
+	}
+
+	// 更新数据库中的 soup 状态为 given_up
+	await setSoup({
+		id: soup.id,
+		title: soup.title,
+		surface: soup.surface,
+		truth: soup.truth,
+		status: "given_up",
+		explanation,
+		createAt: dbSoup.createAt,
+		updateAt: new Date().toISOString(),
+	} satisfies DbSoup);
+
+	// 更新 SWR 缓存
+	mutate(swrKeyMap.soups);
+
+	return explanation;
 };

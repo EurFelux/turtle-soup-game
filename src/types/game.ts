@@ -68,6 +68,12 @@ export const BaseDbSoupSchema = z.discriminatedUnion("status", [
 		..._baseSoup,
 		solution: z.string(),
 		score: z.number(),
+		explanation: z.string(),
+	}),
+	z.object({
+		status: z.literal("given_up"),
+		..._baseSoup,
+		explanation: z.string(),
 	}),
 ]);
 
@@ -85,6 +91,13 @@ export const DbSoupSchema = z.discriminatedUnion("status", [
 		...baseDbFields,
 		solution: z.string(),
 		score: z.number(),
+		explanation: z.string(),
+	}),
+	z.object({
+		status: z.literal("given_up"),
+		..._baseSoup,
+		...baseDbFields,
+		explanation: z.string(),
 	}),
 ]);
 
@@ -110,6 +123,16 @@ export const SoupSchema = z.discriminatedUnion("status", [
 		tries: z.array(TrySchema),
 		solution: z.string(),
 		score: z.number(),
+		explanation: z.string(),
+	}),
+	z.object({
+		status: z.literal("given_up"),
+		id: z.string(),
+		title: z.string(),
+		surface: z.string(),
+		truth: z.string(),
+		tries: z.array(TrySchema),
+		explanation: z.string(),
 	}),
 ]);
 

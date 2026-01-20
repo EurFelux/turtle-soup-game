@@ -37,6 +37,12 @@
 				"title": "创作新故事"
 			},
 			"main_game": {
+				"give_up": {
+					"button": "放弃",
+					"cancel": "取消",
+					"confirm": "确定要放弃吗？放弃后将揭示真相。",
+					"title": "真相揭晓"
+				},
 				"solve": {
 					"description": "试着讲述真相吧！",
 					"submit": "提交",
@@ -45,8 +51,11 @@
 				"surface": {
 					"title": "汤面"
 				},
+				"tries": {
+					"title": "询问结果"
+				},
 				"try": {
-					"description": "写一个能够用“是”、“否”或”无关“来回答的问题。",
+					"description": "写一个能够用「是」、「否」或「无关」来回答的问题。",
 					"submit": "询问",
 					"title": "询问"
 				}

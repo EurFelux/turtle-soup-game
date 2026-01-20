@@ -199,6 +199,16 @@ export async function getSoupById(soupId: string): Promise<Soup | null> {
 			tries,
 			status: "unresolved",
 		};
+	} else if (dbSoup.status === "given_up") {
+		return {
+			id: dbSoup.id,
+			title: dbSoup.title,
+			surface: dbSoup.surface,
+			truth: dbSoup.truth,
+			tries,
+			status: "given_up",
+			explanation: dbSoup.explanation,
+		};
 	} else {
 		throw new Error("Unexpected branch.");
 	}
@@ -241,6 +251,16 @@ export async function getAllSoups(): Promise<Soup[]> {
 				truth: dbSoup.truth,
 				tries: triesBySoupId.get(dbSoup.id) || [],
 				status: "unresolved",
+			};
+		} else if (dbSoup.status === "given_up") {
+			return {
+				id: dbSoup.id,
+				title: dbSoup.title,
+				surface: dbSoup.surface,
+				truth: dbSoup.truth,
+				tries: triesBySoupId.get(dbSoup.id) || [],
+				status: "given_up",
+				explanation: dbSoup.explanation,
 			};
 		} else {
 			throw new Error("Unexpected branch.");

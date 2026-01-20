@@ -37,6 +37,12 @@
 				"title": "Create New Story"
 			},
 			"main_game": {
+				"give_up": {
+					"button": "Give Up",
+					"cancel": "Cancel",
+					"confirm": "Are you sure you want to give up? The truth will be revealed.",
+					"title": "Truth Revealed"
+				},
 				"solve": {
 					"description": "Try to describe the truth!",
 					"submit": "Submit",
@@ -44,6 +50,9 @@
 				},
 				"surface": {
 					"title": "Surface"
+				},
+				"tries": {
+					"title": "Ask Results"
 				},
 				"try": {
 					"description": "Type a question which can be answered by \"Yes\", \"No\" or \"Unrelated.",
