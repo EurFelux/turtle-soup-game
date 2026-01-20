@@ -47,6 +47,13 @@
 					"confirm": "Are you sure you want to give up? The truth will be revealed.",
 					"title": "Truth Revealed"
 				},
+				"hint": {
+					"button": "Request Hint",
+					"success": "Hint received: {{hint}}"
+				},
+				"hints": {
+					"title": "Hints"
+				},
 				"resolved": {
 					"alert_content": "You resolved this puzzle! 🥳"
 				},

@@ -1,4 +1,4 @@
-import { CheckCircleIcon, XCircleIcon } from "lucide-react";
+import { CheckCircleIcon, Lightbulb, XCircleIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import {
 	createSolutionFromAI,
 	createTryFromAI,
 	giveUpSoupFromAI,
+	requestHintFromAI,
 } from "@/business/ai";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,27 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 		}
 	};
 
+	const handleRequestHint = async () => {
+		if (!checkAiSettings(aiSettings)) {
+			toast.error(t("page.turtle.error.invalid_ai_settings"));
+			return;
+		}
+		setIsRequesting(true);
+		try {
+			const hint = await requestHintFromAI({
+				soup,
+				aiSettings,
+				locale,
+			});
+			toast.success(t("page.turtle.main_game.hint.success", { hint }));
+		} catch (error) {
+			toast.error(getErrorMessage(error));
+			console.error(error);
+		} finally {
+			setIsRequesting(false);
+		}
+	};
+
 	const submitQuestionButtonDisabled = !question || isRequesting;
 	const submitSulutionButtonDisabled = !solution || isRequesting;
 
@@ -185,6 +207,29 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 				</>
 			)}
 
+			{/* Hints */}
+			{soup.hints.length > 0 && (
+				<>
+					<section className="p-4">
+						<h2 className="mb-4 text-2xl">
+							{t("page.turtle.main_game.hints.title")}
+						</h2>
+						<div className="space-y-2">
+							{soup.hints.map((hint, index) => (
+								<div
+									key={index}
+									className="flex items-start gap-2 rounded-lg border p-3"
+								>
+									<Lightbulb className="size-5 shrink-0 text-yellow-500" />
+									<p className="text-sm">{hint}</p>
+								</div>
+							))}
+						</div>
+					</section>
+					<Separator className="m-2" />
+				</>
+			)}
+
 			{/* Tries */}
 			<section className="p-4">
 				<h2 className="mb-4 text-2xl">
@@ -226,7 +271,17 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 								{t("page.turtle.main_game.try.description")}
 							</FieldDescription>
 						</Field>
-						<div className="flex justify-end">
+						<div className="flex justify-end gap-2">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={handleRequestHint}
+								disabled={isRequesting}
+							>
+								{isRequesting && <Spinner />}
+								<Lightbulb className="size-4" />
+								{t("page.turtle.main_game.hint.button")}
+							</Button>
 							<Button
 								type="button"
 								onClick={submitQuestion}

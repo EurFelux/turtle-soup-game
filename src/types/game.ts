@@ -49,6 +49,8 @@ export const TrySchema = z.discriminatedUnion("status", [
 
 export type Try = z.infer<typeof TrySchema>;
 
+const HintsSchema = z.array(z.string().min(1).max(30));
+
 const _baseSoup = {
 	id: z.string(),
 	title: z.string(),
@@ -56,6 +58,8 @@ const _baseSoup = {
 	surface: z.string(),
 	/* 汤底 */
 	truth: z.string(),
+	/* Hints */
+	hints: HintsSchema,
 };
 
 export const BaseDbSoupSchema = z.discriminatedUnion("status", [
@@ -106,20 +110,12 @@ export type DbSoup = z.infer<typeof DbSoupSchema>;
 export const SoupSchema = z.discriminatedUnion("status", [
 	z.object({
 		status: z.literal("unresolved"),
-		id: z.string(),
-		title: z.string(),
-		/* 汤面 */
-		surface: z.string(),
-		/* 汤底 */
-		truth: z.string(),
+		..._baseSoup,
 		tries: z.array(TrySchema),
 	}),
 	z.object({
 		status: z.literal("resolved"),
-		id: z.string(),
-		title: z.string(),
-		surface: z.string(),
-		truth: z.string(),
+		..._baseSoup,
 		tries: z.array(TrySchema),
 		solution: z.string(),
 		score: z.number(),
@@ -127,10 +123,7 @@ export const SoupSchema = z.discriminatedUnion("status", [
 	}),
 	z.object({
 		status: z.literal("given_up"),
-		id: z.string(),
-		title: z.string(),
-		surface: z.string(),
-		truth: z.string(),
+		..._baseSoup,
 		tries: z.array(TrySchema),
 		explanation: z.string(),
 	}),

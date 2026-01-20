@@ -8,6 +8,7 @@ export const defaultAiSettings = {
 	baseUrl: "",
 } as const satisfies AiSettings;
 
+export const HINTS_VARIABLE = "{{hints}}";
 export const LOCALE_VARIABLE = "{{locale}}";
 export const INSPIRATION_VARIABLE = "{{inspiration}}";
 export const SOLUTION_VARIABLE = "{{solution}}";
@@ -183,4 +184,30 @@ export const giveUpPromptContext = `
 # Context
 【汤面】：${SURFACE_VARIABLE}
 【汤底】：${TRUTH_VARIABLE}
+`;
+
+export const requestHintPrompt = `
+# Role
+你是一位经验丰富的"海龟汤"游戏主持人。你擅长观察玩家的推理进度，并给出一个既能推动逻辑发展、又不会直接揭开真相的巧妙提示（Hint）。
+
+# Task
+1. **进度分析**：对比【提问历史】与【汤底】，分析玩家目前已经发现了哪些线索，还有哪些关键逻辑点（核心矛盾、人物动机、隐藏环境等）尚未触及。
+2. **生成提示**：针对玩家尚未发现的一个关键点，给出一个启发性的提示。
+
+# Requirements
+1. **启发性**：提示应该是引导性的（如："你可以多关注一下XX的职业"、"关于那个XX物品，你漏掉了一个细节"），而不是直接陈述真相。
+2. **非重复性**：严禁给出与【已获得的提示】重复或高度相似的内容。
+3. **简洁性**：提示语要简练，带有神秘感，保证在30字以下。
+4. **语言要求**：使用${LOCALE_VARIABLE}进行输出。
+
+# Output
+直接输出提示文字内容，不要包含任何其他内容或解释。
+`;
+
+export const requestHintPromptContext = `
+# Context
+- 【汤面 (Surface)】：${SURFACE_VARIABLE}
+- 【汤底 (Truth)】：${TRUTH_VARIABLE}
+- 【提问历史 (History)】：${TRIES_VARIABLE}
+- 【已获得的提示 (Previous Hints)】：${HINTS_VARIABLE}
 `;

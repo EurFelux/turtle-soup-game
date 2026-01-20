@@ -17,10 +17,13 @@ import {
 	evaluateSolutionPromptContext,
 	giveUpPrompt,
 	giveUpPromptContext,
+	HINTS_VARIABLE,
 	judgeSolutionPrompt,
 	judgeSolutionPromptContext,
 	judgeTryPrompt,
 	LOCALE_VARIABLE,
+	requestHintPrompt,
+	requestHintPromptContext,
 	SOLUTION_VARIABLE,
 	SURFACE_VARIABLE,
 	TRIES_VARIABLE,
@@ -119,6 +122,7 @@ export const createSoupFromAI = async ({
 		title: soup.title,
 		surface: soup.surface,
 		truth: soup.truth,
+		hints: [],
 	});
 	mutate(swrKeyMap.soups, (data) => [...(data || []), soup]);
 	return parsedSoup.data;
@@ -385,4 +389,106 @@ export const giveUpSoupFromAI = async ({
 	mutate(swrKeyMap.soups);
 
 	return explanation;
+};
+
+type RequestHintParams = {
+	soup: Soup;
+	aiSettings: AiSettings;
+	locale: LocaleCode;
+	signal?: AbortSignal;
+};
+
+export const requestHintFromAI = async ({
+	soup,
+	aiSettings,
+	locale,
+	signal,
+}: RequestHintParams) => {
+	const provider = createProvider(aiSettings);
+
+	// 格式化提问历史为可读文本
+	const triesText = soup.tries
+		.map((tryItem, index) => {
+			if (tryItem.status === "valid") {
+				return `${index + 1}. Q: ${tryItem.question}\n   A: ${tryItem.response} (${tryItem.reason})`;
+			}
+			return `${index + 1}. Q: ${tryItem.question}\n   A: invalid (${tryItem.reason})`;
+		})
+		.join("\n");
+
+	// 格式化已获得的提示
+	const hintsText = soup.hints.length > 0 ? soup.hints.join("\n") : "暂无提示";
+
+	const systemPrompt = requestHintPrompt.replaceAll(LOCALE_VARIABLE, locale);
+
+	const result = await generateText({
+		model: provider.languageModel(aiSettings.model),
+		system: systemPrompt,
+		messages: [
+			{
+				role: "user",
+				content: requestHintPromptContext
+					.replaceAll(SURFACE_VARIABLE, soup.surface)
+					.replaceAll(TRUTH_VARIABLE, soup.truth)
+					.replaceAll(TRIES_VARIABLE, triesText)
+					.replaceAll(HINTS_VARIABLE, hintsText),
+			},
+		],
+		abortSignal: signal,
+	});
+
+	const hint = result.text.trim();
+
+	// 从数据库读取原始 soup 以获取 createAt 字段
+	const dbSoup = await getDbSoupById(soup.id);
+	if (!dbSoup) {
+		throw new Error(`Soup with id ${soup.id} not found in database`);
+	}
+
+	// 更新数据库中的 soup，添加新的 hint
+	const updatedHints = [...soup.hints, hint];
+
+	if (dbSoup.status === "resolved") {
+		await setSoup({
+			id: soup.id,
+			title: soup.title,
+			surface: soup.surface,
+			truth: soup.truth,
+			hints: updatedHints,
+			status: "resolved",
+			solution: dbSoup.solution,
+			score: dbSoup.score,
+			explanation: dbSoup.explanation,
+			createAt: dbSoup.createAt,
+			updateAt: new Date().toISOString(),
+		} satisfies DbSoup);
+	} else if (dbSoup.status === "given_up") {
+		await setSoup({
+			id: soup.id,
+			title: soup.title,
+			surface: soup.surface,
+			truth: soup.truth,
+			hints: updatedHints,
+			status: "given_up",
+			explanation: dbSoup.explanation,
+			createAt: dbSoup.createAt,
+			updateAt: new Date().toISOString(),
+		} satisfies DbSoup);
+	} else {
+		await setSoup({
+			id: soup.id,
+			title: soup.title,
+			surface: soup.surface,
+			truth: soup.truth,
+			hints: updatedHints,
+			status: "unresolved",
+			createAt: dbSoup.createAt,
+			updateAt: new Date().toISOString(),
+		} satisfies DbSoup);
+	}
+
+	// 更新 SWR 缓存
+	mutate(swrKeyMap.soups);
+
+	return hint;
 };
