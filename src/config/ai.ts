@@ -51,8 +51,8 @@ export const judgeTryPrompt = `
 
 # Rules
 1. **合法性检查 (Status: valid/invalid)**:
-    - **valid**: 用户提出的必须是一个可以用"是"、"否"或"无关"来回答的**封闭性问题**。
-    - **invalid**: 如果用户提出的是开放性问题（例如"为什么"、"是谁"、"发生了什么"），或者输入的内容根本不是一个问题，则判定为 \`invalid\`。
+    - **valid**: 用户提出的必须是一个可以用"是"、"否"或"无关"来回答的**封闭性问题**。也就是说，用户提出一个要么为真，要么为假的命题，并且询问你其真假。
+    - **invalid**: 仅在用户提出的是无法用“是”、“否”或“无关”来回答的问题，或者用户输入的内容根本不是一个问题时，判定为 \`invalid\`。对于其他非预期的情况，应当认为是valid，但是unrelated。
 
 2. **回答判定 (Response - 仅在 valid 时)**:
     - **yes**: 提问内容符合汤底事实。
@@ -70,7 +70,7 @@ export const judgeTryPrompt = `
 {
   "status": "valid" | "invalid",
   "response": "yes" | "no" | "unrelated", // 仅在 status 为 valid 时存在
-  "reason": "逻辑解释文字，使用${LOCALE_VARIABLE}解释。"
+  "reason": "逻辑解释文字，使用${LOCALE_VARIABLE}解释。但不要在解释中提及汤底的内容。"
 }
 \`\`\`
 
@@ -83,6 +83,7 @@ export const judgeTryPrompt = `
 # CRITICAL
 1. 不要用markdownd的代码块语法包裹JSON字符串，输出纯JSON字符串。
 2. reason字段应该使用${LOCALE_VARIABLE}编写。
+3. 不要因为用户提问涉及故事核心就给出invalid的回复。
 `;
 
 export const judgeSolutionPrompt = `
