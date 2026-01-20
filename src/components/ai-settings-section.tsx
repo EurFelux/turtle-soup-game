@@ -1,7 +1,6 @@
 import { CheckCircleIcon } from "lucide-react";
 import { type ReactNode, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 import type { AiSettings, ProviderType } from "@/types";
 import {
 	Accordion,
@@ -23,7 +22,6 @@ type AiSettingsSectionProps = {
 type ProviderTypeItem = {
 	value: ProviderType;
 	label: ReactNode;
-	available?: true;
 };
 
 const AiSettingsSection = ({
@@ -78,7 +76,6 @@ const AiSettingsSection = ({
 		{
 			value: "openai-chat",
 			label: "OpenAI (Chat Completions API)",
-			available: true,
 		},
 		{
 			value: "openai-responses",
@@ -138,16 +135,8 @@ const AiSettingsSection = ({
 													key={item.value}
 													value={item.value}
 													id={item.value}
-													disabled={!item.available}
 												></RadioGroupItem>
-												<Label
-													htmlFor={item.value}
-													className={cn(
-														!item.available && "cursor-not-allowed opacity-50",
-													)}
-												>
-													{item.label}
-												</Label>
+												<Label htmlFor={item.value}>{item.label}</Label>
 											</div>
 										))}
 									</RadioGroup>

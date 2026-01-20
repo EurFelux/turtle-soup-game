@@ -1,3 +1,9 @@
+import { AnthropicProvider, createAnthropic } from "@ai-sdk/anthropic";
+import {
+	createGoogleGenerativeAI,
+	type GoogleGenerativeAIProvider,
+} from "@ai-sdk/google";
+import { createOpenAI, OpenAIProvider } from "@ai-sdk/openai";
 import {
 	createOpenAICompatible,
 	type OpenAICompatibleProvider,
@@ -40,15 +46,27 @@ export const checkAiSettings = (aiSettings: AiSettings): boolean => {
 	return true;
 };
 
-const createProvider = (aiSettings: AiSettings): OpenAICompatibleProvider => {
+const createProvider = (
+	aiSettings: AiSettings,
+):
+	| OpenAICompatibleProvider
+	| OpenAIProvider
+	| GoogleGenerativeAIProvider
+	| AnthropicProvider => {
+	const options = {
+		name: aiSettings.provider,
+		baseURL: aiSettings.baseUrl,
+		apiKey: aiSettings.apiKey,
+	};
 	switch (aiSettings.providerType) {
 		case "openai-chat":
-		default:
-			return createOpenAICompatible({
-				name: aiSettings.provider,
-				baseURL: aiSettings.baseUrl,
-				apiKey: aiSettings.apiKey,
-			});
+			return createOpenAICompatible(options);
+		case "openai-responses":
+			return createOpenAI(options);
+		case "gemini":
+			return createGoogleGenerativeAI(options);
+		case "anthropic":
+			return createAnthropic(options);
 	}
 };
 
