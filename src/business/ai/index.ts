@@ -33,6 +33,13 @@ import {
 import { safeParseJson } from "@/utils/json";
 import { uuidv4 } from "@/utils/uuid";
 
+export const checkAiSettings = (aiSettings: AiSettings): boolean => {
+	if (!aiSettings.model) return false;
+	if (!aiSettings.apiKey) return false;
+	if (!aiSettings.baseUrl) return false;
+	return true;
+};
+
 const createProvider = (aiSettings: AiSettings): OpenAICompatibleProvider => {
 	switch (aiSettings.providerType) {
 		case "openai-chat":

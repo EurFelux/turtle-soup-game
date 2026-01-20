@@ -28,6 +28,7 @@
 	"page": {
 		"turtle": {
 			"create_soup": {
+				"ai_settings_error": "AI 提供商设置缺失",
 				"create": "创作",
 				"prompt": {
 					"generate": "随机主题",

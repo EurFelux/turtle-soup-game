@@ -28,6 +28,7 @@
 	"page": {
 		"turtle": {
 			"create_soup": {
+				"ai_settings_error": "AI Provider Settings is invalid",
 				"create": "Create",
 				"prompt": {
 					"generate": "Random Theme",

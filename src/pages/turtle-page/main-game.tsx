@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import useSWR from "swr";
 import {
 	createSolutionFromAI,
@@ -27,6 +28,7 @@ import { swrKeyMap } from "@/config/swr";
 import { getTriesBySoupId } from "@/db";
 import { useLocale } from "@/hooks/useLocale";
 import type { AiSettings, Soup } from "@/types";
+import { getErrorMessage } from "@/utils/error";
 import TryList from "./try-list";
 
 type MainGameProps = {
@@ -60,6 +62,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 			});
 			setQuestion("");
 		} catch (error) {
+			toast.error(getErrorMessage(error));
 			console.error(error);
 		} finally {
 			setIsRequesting(false);
@@ -76,6 +79,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 				locale,
 			});
 		} catch (error) {
+			toast.error(getErrorMessage(error));
 			console.error(error);
 		} finally {
 			setIsRequesting(false);
@@ -92,6 +96,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 				locale,
 			});
 		} catch (error) {
+			toast.error(getErrorMessage(error));
 			console.error(error);
 		} finally {
 			setIsRequesting(false);
