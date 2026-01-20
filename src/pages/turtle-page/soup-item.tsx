@@ -40,8 +40,8 @@ const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 				"flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg p-2 transition-colors",
 				"hover:bg-secondary-hover",
 				active && "bg-primary text-primary-foreground hover:bg-primary-hover",
-				soup.status === "resolved" && !active && "border-l-2 border-success",
-				soup.status === "given_up" && !active && "border-l-2 border-warning",
+				soup.status === "resolved" && !active && "border-success border-l-2",
+				soup.status === "given_up" && !active && "border-warning border-l-2",
 			)}
 			onClick={onClick}
 		>
