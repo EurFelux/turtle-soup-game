@@ -31,7 +31,7 @@ const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
 		async (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			if (!checkAiSettings(aiSettings)) {
-				toast.error(t("page.turtle.create_soup.ai_settings_error"));
+				toast.error(t("page.turtle.error.invalid_ai_settings"));
 				return;
 			}
 			setIsSubmiting(true);

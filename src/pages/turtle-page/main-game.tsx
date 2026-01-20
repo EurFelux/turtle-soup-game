@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import useSWR from "swr";
 import {
+	checkAiSettings,
 	createSolutionFromAI,
 	createTryFromAI,
 	giveUpSoupFromAI,
@@ -51,6 +52,10 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	const { data: tries, error } = useSWR(swrKeyMap.tries(soup.id), triesFetcher);
 
 	const submitQuestion = async () => {
+		if (!checkAiSettings(aiSettings)) {
+			toast.error(t("page.turtle.error.invalid_ai_settings"));
+			return;
+		}
 		setIsRequesting(true);
 		try {
 			await createTryFromAI({
@@ -70,6 +75,10 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	};
 
 	const submitSolution = async () => {
+		if (!checkAiSettings(aiSettings)) {
+			toast.error(t("page.turtle.error.invalid_ai_settings"));
+			return;
+		}
 		setIsRequesting(true);
 		try {
 			await createSolutionFromAI({
@@ -87,6 +96,10 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	};
 
 	const handleGiveUp = async () => {
+		if (!checkAiSettings(aiSettings)) {
+			toast.error(t("page.turtle.error.invalid_ai_settings"));
+			return;
+		}
 		setIsRequesting(true);
 		setIsDialogOpen(false);
 		try {
