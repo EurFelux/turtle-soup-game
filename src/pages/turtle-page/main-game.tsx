@@ -143,7 +143,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	}, [soup.status, t]);
 
 	return (
-		<div className="flex flex-col gap-2 rounded-lg bg-secondary">
+		<div className="flex flex-col gap-2 rounded-lg bg-secondary p-4">
 			{alertContent}
 			{/* Surface */}
 			<section className="rounded-lg bg-secondary p-4">
