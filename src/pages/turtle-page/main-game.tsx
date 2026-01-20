@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { CheckCircleIcon, XCircleIcon } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -8,6 +9,7 @@ import {
 	createTryFromAI,
 	giveUpSoupFromAI,
 } from "@/business/ai";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -119,8 +121,30 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	const submitQuestionButtonDisabled = !question || isRequesting;
 	const submitSulutionButtonDisabled = !solution || isRequesting;
 
+	const alertContent = useMemo(() => {
+		switch (soup.status) {
+			case "given_up":
+				return (
+					<Alert>
+						<XCircleIcon className="size-4 text-destructive" />
+						{t("page.turtle.main_game.give_up.alert_content")}
+					</Alert>
+				);
+			case "resolved":
+				return (
+					<Alert>
+						<CheckCircleIcon className="size-4 text-success" />
+						{t("page.turtle.main_game.resolved.alert_content")}
+					</Alert>
+				);
+			default:
+				return null;
+		}
+	}, [soup.status, t]);
+
 	return (
 		<div className="flex flex-col gap-2 rounded-lg bg-secondary">
+			{alertContent}
 			{/* Surface */}
 			<section className="rounded-lg bg-secondary p-4">
 				<h2 className="mb-4 text-2xl">

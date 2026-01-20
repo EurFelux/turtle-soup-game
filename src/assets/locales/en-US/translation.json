@@ -36,12 +36,19 @@
 				},
 				"title": "Create New Story"
 			},
+			"error": {
+				"invalid_ai_settings": "AI Provider Settings is invalid"
+			},
 			"main_game": {
 				"give_up": {
+					"alert_content": "You gave up this puzzle. 🙁",
 					"button": "Give Up",
 					"cancel": "Cancel",
 					"confirm": "Are you sure you want to give up? The truth will be revealed.",
 					"title": "Truth Revealed"
+				},
+				"resolved": {
+					"alert_content": "You resolved this puzzle! 🥳"
 				},
 				"solve": {
 					"description": "Try to describe the truth!",
@@ -63,9 +70,7 @@
 			"try_list": {
 				"empty": "No tries yet"
 			},
-			"error": {
-				"invalid_ai_settings": "AI Provider Settings is invalid"
-			}
+
 		}
 	},
 	"theme": {
