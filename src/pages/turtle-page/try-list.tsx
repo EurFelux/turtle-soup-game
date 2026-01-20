@@ -65,7 +65,7 @@ const TryList = ({ tries, error }: TryListProps) => {
 	}
 
 	return (
-		<ul className="flex h-full flex-col gap-1.5 rounded-lg bg-secondary p-4">
+		<ul className="flex h-full max-w-full flex-col gap-1.5 rounded-lg bg-secondary">
 			{content}
 		</ul>
 	);

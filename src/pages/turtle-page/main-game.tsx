@@ -150,7 +150,9 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 				<h2 className="mb-4 text-2xl">
 					{t("page.turtle.main_game.surface.title")}
 				</h2>
-				<ScrollArea className="max-h-48">{soup.surface}</ScrollArea>
+				<ScrollArea className="max-h-48 overflow-y-auto rounded-lg border p-4">
+					{soup.surface}
+				</ScrollArea>
 			</section>
 			<Separator className="m-2" />
 
@@ -188,7 +190,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 				<h2 className="mb-4 text-2xl">
 					{t("page.turtle.main_game.tries.title")}
 				</h2>
-				<ScrollArea className="max-h-96 overflow-y-auto rounded-lg border p-4">
+				<ScrollArea className="max-h-96 max-w-full overflow-y-auto rounded-lg border p-4">
 					<TryList tries={tries} error={error} />
 				</ScrollArea>
 			</section>
