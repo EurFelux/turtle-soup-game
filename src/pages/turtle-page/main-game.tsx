@@ -43,6 +43,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 				locale,
 				truth: soup.truth,
 			});
+			setQuestion("");
 		} catch (error) {
 			console.error(error);
 		} finally {
