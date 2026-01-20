@@ -9,8 +9,11 @@ export const defaultAiSettings = {
 } as const satisfies AiSettings;
 
 export const LOCALE_VARIABLE = "{{locale}}";
-
 export const INSPIRATION_VARIABLE = "{{inspiration}}";
+export const SOLUTION_VARIABLE = "{{solution}}";
+export const SURFACE_VARIABLE = "{{surface}}";
+export const TRUTH_VARIABLE = "{{truth}}";
+export const TRIES_VARIABLE = "{{tries}}";
 
 export const createSoupPrompt = `
 # Role
@@ -41,8 +44,6 @@ export const createSoupPrompt = `
 # CRITICAL
 不要用markdownd的代码块语法包裹JSON字符串，输出纯JSON字符串。
 `;
-
-export const TRUTH_VARIABLE = "{{truth}}";
 
 export const judgeTryPrompt = `
 # Role
@@ -84,10 +85,6 @@ export const judgeTryPrompt = `
 2. reason字段应该使用${LOCALE_VARIABLE}编写。
 `;
 
-export const TRIES_VARIABLE = "{{tries}}";
-
-export const SOLUTION_VARIABLE = "{{solution}}";
-
 export const judgeSolutionPrompt = `
 # Role
 你是一位逻辑严密的"海龟汤"游戏裁判。你的任务是评估玩家的猜测是否已经触及了故事的真相。
@@ -113,15 +110,19 @@ export const evaluateSolutionPrompt = `
 # Role
 你是一位"海龟汤"游戏的主持人。玩家已经通过一系列提问推理出了真相，你需要为这局游戏提供总结和评分。
 
+# Input
+你会得到这些上下文信息：【汤底 (truth)】、【汤面 (surface)】【玩家的提问历史 (tries)】、【玩家的解答 (solution)】。
+
 # Task
-根据给定的【汤底 (truth)】、【玩家的提问历史 (tries)】、【玩家的解答 (solution)】，生成一个完整的游戏总结和评分。
+1. 输出一段文字来描述完整故事，将汤面中那些离奇的线索串联起来，给玩家一个满意的交代。请解释清楚汤面中的离奇点是如何发生的，让玩家读完后恍然大悟。
+2. 对玩家提供的解答和提问过程评分。
 
 # Output
 1. **你的解答 (solution)**：
     - 用清晰、完整的语言揭示故事的真相
     - 解释汤面和汤底之间的关联
-    - 可以适当补充故事细节，使推理过程更加生动
-    - 长度建议在 100-300 字之间
+    - 不要只写逻辑要点，要像讲故事一样把来龙去脉讲清楚，语气可以带有悬疑感或戏剧性。
+    - 除了解释故事本身以外，严禁输出任何多余的解释性文字。
 
 2. **评分 (score)**：
     - 分值范围：0-100 分
@@ -146,14 +147,9 @@ export const evaluateSolutionPrompt = `
 # Response Format
 请严格按照以下 JSON 格式输出：
 {
-  "solution": "完整的故事解答和真相揭示...",
+  "explanation": "完整的故事解答和真相揭示...",
   "score": 85
 }
-
-# Context
-【汤底 (truth)】: ${TRUTH_VARIABLE}
-【玩家提问历史 (tries)】: ${TRIES_VARIABLE}
-【玩家的解答 (solution)】: ${SOLUTION_VARIABLE}
 
 # CRITICAL
 不要用markdown的代码块语法包裹JSON字符串，输出纯JSON字符串。
@@ -161,11 +157,10 @@ export const evaluateSolutionPrompt = `
 
 export const evaluateSolutionPromptContext = `# Context
 【汤底 (Truth)】：${TRUTH_VARIABLE},
+【汤面 (Surface)】：${SURFACE_VARIABLE},
 【玩家解答 (Solution)】：${SOLUTION_VARIABLE}",
 【提问历史 (Tries)】：${TRIES_VARIABLE}
 `;
-
-export const SURFACE_VARIABLE = "{{surface}}";
 
 export const giveUpPrompt = `
 # Role

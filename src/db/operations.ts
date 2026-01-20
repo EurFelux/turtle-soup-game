@@ -189,6 +189,7 @@ export async function getSoupById(soupId: string): Promise<Soup | null> {
 			status: "resolved",
 			solution: dbSoup.solution,
 			score: dbSoup.score,
+			explanation: dbSoup.explanation,
 		};
 	} else if (dbSoup.status === "unresolved") {
 		return {
@@ -242,6 +243,7 @@ export async function getAllSoups(): Promise<Soup[]> {
 				status: "resolved",
 				solution: dbSoup.solution,
 				score: dbSoup.score,
+				explanation: dbSoup.explanation,
 			};
 		} else if (dbSoup.status === "unresolved") {
 			return {

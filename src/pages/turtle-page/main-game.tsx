@@ -134,7 +134,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 							{t("page.turtle.main_game.solve.title")} - {soup.score} 分
 						</h2>
 						<ScrollArea className="h-96 overflow-auto whitespace-pre-wrap">
-							<p>{soup.solution}</p>
+							<p>{soup.explanation}</p>
 						</ScrollArea>
 					</section>
 					<Separator className="m-2" />

@@ -185,7 +185,7 @@ export const createTryFromAI = async ({
 };
 
 const CreateSolutionResultSchema = z.object({
-	solution: z.string(),
+	explanation: z.string(),
 	score: z.number().int().min(0).max(100),
 });
 
@@ -259,6 +259,7 @@ export const createSolutionFromAI = async ({
 				role: "user",
 				content: evaluateSolutionPromptContext
 					.replaceAll(TRUTH_VARIABLE, soup.truth)
+					.replaceAll(SURFACE_VARIABLE, soup.surface)
 					.replaceAll(SOLUTION_VARIABLE, userSolution)
 					.replaceAll(TRIES_VARIABLE, triesText),
 			},
@@ -291,8 +292,9 @@ export const createSolutionFromAI = async ({
 		surface: soup.surface,
 		truth: soup.truth,
 		status: "resolved",
-		solution: solutionData.solution,
+		solution: userSolution,
 		score: solutionData.score,
+		explanation: solutionData.explanation,
 		createAt: dbSoup.createAt,
 		updateAt: new Date().toISOString(),
 	} satisfies DbSoup);
