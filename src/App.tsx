@@ -35,7 +35,7 @@ function App() {
 				<main className="flex flex-1 flex-col">
 					<TurtlePage />
 				</main>
-				<Toaster />
+				<Toaster richColors />
 			</LocaleProvider>
 		</ThemeProvider>
 	);
