@@ -75,12 +75,11 @@
 					"title": "询问"
 				}
 			},
-			"noActiveSoup": {
-				"description": "page.turtle.noActiveSoup.description",
-				"title": "page.turtle.noActiveSoup.title"
-			},
 			"success": {
-				"created": "创建成功： {{title}}"
+				"created": {
+					"message": "创建成功： {{title}}",
+					"action": "跳转"
+				}
 			},
 			"try_list": {
 				"empty": "无尝试"

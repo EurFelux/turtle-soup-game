@@ -4,21 +4,17 @@ import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Soup } from "@/types";
 import SoupItem from "./soup-item";
+import { useTurtleContext } from "./useTurtleContext";
 
 type SoupsListProps = {
 	// Take undefined as loading
 	soups: Soup[] | undefined;
 	error: unknown;
-	activeSoupId: string | null;
-	setActiveSoupId: (id: string | null) => void;
 };
 
-const SoupList = ({
-	soups,
-	error,
-	activeSoupId,
-	setActiveSoupId,
-}: SoupsListProps) => {
+const SoupList = ({ soups, error }: SoupsListProps) => {
+	const { activeSoupId, setActiveSoupId } = useTurtleContext();
+
 	const content = useMemo(() => {
 		if (soups === undefined) {
 			return (

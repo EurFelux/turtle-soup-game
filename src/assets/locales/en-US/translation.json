@@ -75,12 +75,11 @@
 					"title": "Ask"
 				}
 			},
-			"noActiveSoup": {
-				"description": "",
-				"title": ""
-			},
 			"success": {
-				"created": "Created: {{title}}"
+				"created": {
+					"message": "Created: {{title}}",
+					"action": "Jump"
+				}
 			},
 			"try_list": {
 				"empty": "No tries yet"

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import type { AiSettings, CreatingSoup, Soup } from "@/types";
 import { getErrorMessage } from "@/utils/error";
 import { uuidv4 } from "@/utils/uuid";
+import { useTurtleContext } from "./useTurtleContext";
 
 type CreateSoupContentProps = {
 	aiSettings: AiSettings;
@@ -31,6 +32,7 @@ const CreateSoupContent = ({
 }: CreateSoupContentProps) => {
 	const { t } = useTranslation();
 	const { locale } = useLocale();
+	const { setActiveSoupId } = useTurtleContext();
 
 	const [userPrompt, setUserPrompt] = useState<string>("");
 	const { mutate } = useSWRConfig();
@@ -66,7 +68,17 @@ const CreateSoupContent = ({
 							aiSettings,
 						});
 						toast.success(
-							t("page.turtle.success.created", { title: created.title }),
+							t("page.turtle.success.created.message", {
+								title: created.title,
+							}),
+							{
+								action: {
+									label: t("page.turtle.success.created.action"),
+									onClick: () => {
+										setActiveSoupId(newSoupId);
+									},
+								},
+							},
 						);
 						return getAllSoups();
 					},
@@ -81,7 +93,7 @@ const CreateSoupContent = ({
 				console.error(e);
 			}
 		},
-		[aiSettings, t, onSubmit, mutate, userPrompt, locale],
+		[aiSettings, t, onSubmit, mutate, userPrompt, locale, setActiveSoupId],
 	);
 
 	const promptId = useId();
