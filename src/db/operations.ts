@@ -11,7 +11,7 @@
  */
 
 import {
-	type BaseDbSoup,
+	type CreateSoupParams,
 	type DbSoup,
 	DbSoupSchema,
 	type DbTry,
@@ -19,6 +19,7 @@ import {
 	type Try,
 	TrySchema,
 } from "@/types";
+import { uuidv4 } from "@/utils/uuid";
 import db from "./database";
 
 // ==================== Soup CRUD Operations ====================
@@ -26,10 +27,15 @@ import db from "./database";
 /**
  * Create a new soup puzzle
  */
-export async function createSoup(soup: BaseDbSoup): Promise<NotCreatingSoup> {
+export async function createSoup(
+	soup: CreateSoupParams,
+): Promise<NotCreatingSoup> {
 	// Runtime validation with Zod
 	const dbSoup = {
 		...soup,
+		id: uuidv4(),
+		status: "unresolved",
+		hints: [],
 		createAt: new Date().toISOString(),
 		updateAt: new Date().toISOString(),
 	} satisfies DbSoup;
@@ -43,13 +49,21 @@ export async function createSoup(soup: BaseDbSoup): Promise<NotCreatingSoup> {
 /**
  * Bulk create soup puzzles
  */
-export async function createSoups(soups: BaseDbSoup[]): Promise<string[]> {
+export async function createSoups(
+	soups: CreateSoupParams[],
+): Promise<string[]> {
 	// Runtime validation with Zod
-	const dbSoups = soups.map((soup) => ({
-		...soup,
-		createAt: new Date().toISOString(),
-		updateAt: new Date().toISOString(),
-	}));
+	const dbSoups: DbSoup[] = soups.map(
+		(soup) =>
+			({
+				...soup,
+				id: uuidv4(),
+				status: "unresolved",
+				hints: [],
+				createAt: new Date().toISOString(),
+				updateAt: new Date().toISOString(),
+			}) satisfies DbSoup,
+	);
 	const validatedSoups = dbSoups.map((soup) => DbSoupSchema.parse(soup));
 	return await db.soups.bulkAdd(validatedSoups, { allKeys: true });
 }
@@ -184,43 +198,10 @@ export async function getSoupById(
 	// Convert DbTry to Try by removing database-specific fields
 	const tries: Try[] = dbTries.map(({ updateAt: _1, ...tryData }) => tryData);
 
-	if (dbSoup.status === "resolved") {
-		return {
-			id: dbSoup.id,
-			title: dbSoup.title,
-			surface: dbSoup.surface,
-			truth: dbSoup.truth,
-			hints: dbSoup.hints,
-			tries,
-			status: "resolved",
-			solution: dbSoup.solution,
-			score: dbSoup.score,
-			explanation: dbSoup.explanation,
-		};
-	} else if (dbSoup.status === "unresolved") {
-		return {
-			id: dbSoup.id,
-			title: dbSoup.title,
-			surface: dbSoup.surface,
-			truth: dbSoup.truth,
-			hints: dbSoup.hints,
-			tries,
-			status: "unresolved",
-		};
-	} else if (dbSoup.status === "given_up") {
-		return {
-			id: dbSoup.id,
-			title: dbSoup.title,
-			surface: dbSoup.surface,
-			truth: dbSoup.truth,
-			hints: dbSoup.hints,
-			tries,
-			status: "given_up",
-			explanation: dbSoup.explanation,
-		};
-	} else {
-		throw new Error("Unexpected branch.");
-	}
+	return {
+		...dbSoup,
+		tries,
+	};
 }
 
 /**
@@ -240,45 +221,12 @@ export async function getAllSoups(): Promise<NotCreatingSoup[]> {
 	}
 
 	// Convert DbSoup to Soup with associated tries
-	return dbSoups.map((dbSoup): NotCreatingSoup => {
-		if (dbSoup.status === "resolved") {
-			return {
-				id: dbSoup.id,
-				title: dbSoup.title,
-				surface: dbSoup.surface,
-				truth: dbSoup.truth,
-				hints: dbSoup.hints,
-				tries: triesBySoupId.get(dbSoup.id) || [],
-				status: "resolved",
-				solution: dbSoup.solution,
-				score: dbSoup.score,
-				explanation: dbSoup.explanation,
-			};
-		} else if (dbSoup.status === "unresolved") {
-			return {
-				id: dbSoup.id,
-				title: dbSoup.title,
-				surface: dbSoup.surface,
-				truth: dbSoup.truth,
-				hints: dbSoup.hints,
-				tries: triesBySoupId.get(dbSoup.id) || [],
-				status: "unresolved",
-			};
-		} else if (dbSoup.status === "given_up") {
-			return {
-				id: dbSoup.id,
-				title: dbSoup.title,
-				surface: dbSoup.surface,
-				truth: dbSoup.truth,
-				hints: dbSoup.hints,
-				tries: triesBySoupId.get(dbSoup.id) || [],
-				status: "given_up",
-				explanation: dbSoup.explanation,
-			};
-		} else {
-			throw new Error("Unexpected branch.");
-		}
-	});
+	return dbSoups.map(
+		(dbSoup): NotCreatingSoup => ({
+			...dbSoup,
+			tries: triesBySoupId.get(dbSoup.id) || [],
+		}),
+	);
 }
 
 /**

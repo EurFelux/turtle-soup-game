@@ -45,7 +45,11 @@ const CreateSoupForm = ({
 			}
 			setIsSubmiting(true);
 			try {
-				const creating: CreatingSoup = { id: uuidv4(), status: "creating" };
+				const creating: CreatingSoup = {
+					id: uuidv4(),
+					status: "creating",
+					createAt: new Date().toISOString(),
+				};
 				mutate<Soup[]>(
 					swrKeyMap.soups,
 					async () => {

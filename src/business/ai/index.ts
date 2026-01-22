@@ -117,15 +117,11 @@ export const createSoupFromAI = async ({
 		throw new Error(`Invalid data: ${parsedSoup.error}`);
 	}
 	const soup = parsedSoup.data;
-	const soupId = uuidv4();
 
 	const params = {
-		id: soupId,
-		status: "unresolved",
 		title: soup.title,
 		surface: soup.surface,
 		truth: soup.truth,
-		hints: [],
 	} satisfies CreateSoupParams;
 	return createSoup(params);
 };

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import useSWR from "swr";
 import AiSettingsSection from "@/components/ai-settings-section";
 import { Separator } from "@/components/ui/separator";
@@ -53,19 +53,25 @@ const TurtlePage = () => {
 		[_setSettings],
 	);
 
-	const { data: soups, error } = useSWR(swrKeyMap.soups, getAllSoups);
+	const { data: soups, error } = useSWR(
+		swrKeyMap.soups,
+		getAllSoups as () => Promise<Soup[]>,
+	);
 
 	const [activeSoupId, setActiveSoupId] = useState<string | null>(null);
 
-	const activeSoup = (soups as Soup[])?.find(
-		(soup) => soup.id === activeSoupId,
-	);
+	const activeSoup = soups?.find((soup) => soup.id === activeSoupId);
+
+	const sortedSoups = useMemo(() => {
+		if (!soups) return [];
+		return soups.sort((a, b) => a.createAt.localeCompare(b.createAt));
+	}, [soups]);
 
 	return (
 		<div className="flex h-full flex-1 flex-col gap-4 p-4 xl:flex-row xl:gap-0 xl:p-8">
 			<div className="max-h-72 w-full overflow-y-auto rounded-lg bg-secondary p-4 xl:max-h-full xl:w-60">
 				<SoupList
-					soups={soups}
+					soups={sortedSoups}
 					error={error}
 					activeSoupId={activeSoupId}
 					setActiveSoupId={setActiveSoupId}

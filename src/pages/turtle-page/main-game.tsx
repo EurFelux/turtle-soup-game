@@ -191,7 +191,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 
 	if (soup.status === "creating") {
 		return (
-			<Skeleton className="flex h-72 items-center justify-center rounded-lg bg-secondary">
+			<Skeleton className="flex h-162 items-center justify-center rounded-lg bg-secondary">
 				{t("soup.status.creating")}
 			</Skeleton>
 		);

@@ -51,7 +51,7 @@ export type Try = z.infer<typeof TrySchema>;
 
 const HintsSchema = z.array(z.string().min(1).max(30));
 
-const _baseSoup = {
+const baseSoup = {
 	id: z.uuidv4(),
 	title: z.string(),
 	/* 汤面 */
@@ -60,48 +60,30 @@ const _baseSoup = {
 	truth: z.string(),
 	/* Hints */
 	hints: HintsSchema,
+	updateAt: z.iso.datetime(),
+	createAt: z.iso.datetime(),
 };
 
-export const BaseDbSoupSchema = z.discriminatedUnion("status", [
-	z.object({
-		status: z.literal("unresolved"),
-		..._baseSoup,
-	}),
-	z.object({
-		status: z.literal("resolved"),
-		..._baseSoup,
-		solution: z.string(),
-		score: z.number(),
-		explanation: z.string(),
-	}),
-	z.object({
-		status: z.literal("given_up"),
-		..._baseSoup,
-		explanation: z.string(),
-	}),
-]);
+const _baseSoupSchema = z.object(baseSoup);
 
-export type BaseDbSoup = z.infer<typeof BaseDbSoupSchema>;
+type BaseSoup = z.infer<typeof _baseSoupSchema>;
 
 // Data Object
 export const DbSoupSchema = z.discriminatedUnion("status", [
 	z.object({
 		status: z.literal("unresolved"),
-		..._baseSoup,
-		...baseDbFields,
+		...baseSoup,
 	}),
 	z.object({
 		status: z.literal("resolved"),
-		..._baseSoup,
-		...baseDbFields,
+		...baseSoup,
 		solution: z.string(),
 		score: z.number(),
 		explanation: z.string(),
 	}),
 	z.object({
 		status: z.literal("given_up"),
-		..._baseSoup,
-		...baseDbFields,
+		...baseSoup,
 		explanation: z.string(),
 	}),
 ]);
@@ -111,13 +93,14 @@ export type DbSoup = z.infer<typeof DbSoupSchema>;
 const CreatingSoupSchema = z.object({
 	id: z.uuidv4(),
 	status: z.literal("creating"),
+	createAt: z.iso.datetime(),
 });
 
 export type CreatingSoup = z.infer<typeof CreatingSoupSchema>;
 
 const UnresolvedSoupSchema = z.object({
 	status: z.literal("unresolved"),
-	..._baseSoup,
+	...baseSoup,
 	tries: z.array(TrySchema),
 });
 
@@ -125,7 +108,7 @@ export type UnresolvedSoup = z.infer<typeof UnresolvedSoupSchema>;
 
 const ResolvedSoupSchema = z.object({
 	status: z.literal("resolved"),
-	..._baseSoup,
+	...baseSoup,
 	tries: z.array(TrySchema),
 	solution: z.string(),
 	score: z.number(),
@@ -136,7 +119,7 @@ export type ResolvedSoup = z.infer<typeof ResolvedSoupSchema>;
 
 const GivenUpSoupSchema = z.object({
 	status: z.literal("given_up"),
-	..._baseSoup,
+	...baseSoup,
 	tries: z.array(TrySchema),
 	explanation: z.string(),
 });
@@ -154,4 +137,7 @@ export type Soup = z.infer<typeof SoupSchema>;
 
 export type NotCreatingSoup = UnresolvedSoup | ResolvedSoup | GivenUpSoup;
 
-export type CreateSoupParams = BaseDbSoup;
+export type CreateSoupParams = Omit<
+	BaseSoup,
+	"id" | "createAt" | "updateAt" | "hints"
+>;
