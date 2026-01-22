@@ -40,6 +40,7 @@ const SoupList = ({
 		} else {
 			return soups.map((soup: Soup) => (
 				<SoupItem
+					key={soup.id}
 					soup={soup}
 					active={activeSoupId === soup.id}
 					onClick={() => setActiveSoupId(soup.id)}

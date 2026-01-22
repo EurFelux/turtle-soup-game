@@ -130,7 +130,7 @@ const AiSettingsSection = ({
 										}
 									>
 										{providerTypeItems.map((item) => (
-											<div className="flex gap-2">
+											<div key={item.value} className="flex gap-2">
 												<RadioGroupItem
 													key={item.value}
 													value={item.value}
