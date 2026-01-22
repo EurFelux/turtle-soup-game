@@ -42,63 +42,76 @@ const CreateSoupContent = ({
 		setUserPrompt(prompt);
 	}, [locale]);
 
-	const handleSubmit = useCallback(
-		async (e: React.FormEvent<HTMLFormElement>) => {
-			e.preventDefault();
-			if (!checkAiSettings(aiSettings)) {
-				toast.error(t("page.turtle.error.invalid_ai_settings"));
-				return;
-			}
-			try {
-				const newSoupId = uuidv4();
-				const creating: CreatingSoup = {
-					id: newSoupId,
-					status: "creating",
-					createAt: new Date().toISOString(),
-				};
-				setUserPrompt("");
-				onSubmit?.();
-				await mutate<Soup[]>(
-					swrKeyMap.soups,
-					async () => {
-						const created = await createSoupFromAI({
-							id: newSoupId,
-							userPrompt,
-							locale,
-							aiSettings,
-						});
-						toast.success(
-							t("page.turtle.success.created.message", {
-								title: created.title,
-							}),
-							{
-								action: {
-									label: t("page.turtle.success.created.action"),
-									onClick: () => {
-										setActiveSoupId(newSoupId);
-									},
+	const handleSubmit = useCallback(async () => {
+		if (!checkAiSettings(aiSettings)) {
+			toast.error(t("page.turtle.error.invalid_ai_settings"));
+			return;
+		}
+		try {
+			const newSoupId = uuidv4();
+			const creating: CreatingSoup = {
+				id: newSoupId,
+				status: "creating",
+				createAt: new Date().toISOString(),
+			};
+			setUserPrompt("");
+			onSubmit?.();
+			await mutate<Soup[]>(
+				swrKeyMap.soups,
+				async () => {
+					const created = await createSoupFromAI({
+						id: newSoupId,
+						userPrompt,
+						locale,
+						aiSettings,
+					});
+					toast.success(
+						t("page.turtle.success.created.message", {
+							title: created.title,
+						}),
+						{
+							action: {
+								label: t("page.turtle.success.created.action"),
+								onClick: () => {
+									setActiveSoupId(newSoupId);
 								},
 							},
-						);
-						return getAllSoups();
-					},
-					{
-						optimisticData: (current) =>
-							current ? [...current, creating] : [creating],
-						rollbackOnError: true,
-					},
-				);
-			} catch (e) {
-				toast.error(getErrorMessage(e));
-				console.error(e);
-			}
-		},
-		[aiSettings, t, onSubmit, mutate, userPrompt, locale, setActiveSoupId],
-	);
+						},
+					);
+					return getAllSoups();
+				},
+				{
+					optimisticData: (current) =>
+						current ? [...current, creating] : [creating],
+					rollbackOnError: true,
+				},
+			);
+		} catch (e) {
+			toast.error(getErrorMessage(e));
+			console.error(e);
+		}
+	}, [aiSettings, t, onSubmit, mutate, userPrompt, locale, setActiveSoupId]);
+
+	const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		if (
+			event.key === "Enter" &&
+			!event.shiftKey &&
+			(event.metaKey || event.ctrlKey)
+		) {
+			event.preventDefault();
+			handleSubmit();
+		}
+	};
 
 	const promptId = useId();
 	return (
-		<form onSubmit={handleSubmit} className={cn("flex flex-col", className)}>
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				handleSubmit();
+			}}
+			className={cn("flex flex-col", className)}
+		>
 			<Field className="flex-1">
 				<FieldLabel htmlFor={promptId}>
 					{t("page.turtle.create_soup.prompt.label")}
@@ -108,6 +121,7 @@ const CreateSoupContent = ({
 					value={userPrompt}
 					onChange={(e) => setUserPrompt(e.target.value)}
 					placeholder={t("page.turtle.create_soup.prompt.placeholder")}
+					onKeyDown={handleKeyDown}
 					className="mb-2 flex-1"
 				/>
 			</Field>
