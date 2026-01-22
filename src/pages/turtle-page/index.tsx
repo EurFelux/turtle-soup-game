@@ -6,6 +6,7 @@ import { defaultAiSettings } from "@/config/ai";
 import { LocalStorageKeyMap } from "@/config/storage";
 import { swrKeyMap } from "@/config/swr";
 import { getAllSoups } from "@/db";
+import type { Soup } from "@/types";
 import { type AiSettings, AiSettingsSchema } from "@/types/ai";
 import { safeParseJson } from "@/utils/json";
 import CreateSoupForm from "./create-soup";
@@ -56,11 +57,11 @@ const TurtlePage = () => {
 
 	const [activeSoupId, setActiveSoupId] = useState<string | null>(null);
 
-	const soup = soups?.find((soup) => soup.id === activeSoupId);
+	const activeSoup = (soups as Soup[]).find((soup) => soup.id === activeSoupId);
 
 	return (
 		<div className="flex flex-1 flex-col gap-4 p-4 xl:flex-row xl:gap-0 xl:p-8">
-			<div className="w-full xl:w-60">
+			<div className="max-h-72 w-full overflow-y-auto rounded-lg bg-secondary p-4 xl:max-h-full xl:w-60">
 				<SoupList
 					soups={soups}
 					error={error}
@@ -78,7 +79,7 @@ const TurtlePage = () => {
 					setActiveSoupId={setActiveSoupId}
 				/>
 				<Separator className="my-2" />
-				{soup && <MainGame soup={soup} aiSettings={settings} />}
+				{activeSoup && <MainGame soup={activeSoup} aiSettings={settings} />}
 			</div>
 			<Separator
 				orientation="vertical"

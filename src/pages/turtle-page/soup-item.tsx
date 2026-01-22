@@ -1,4 +1,6 @@
 import { CheckCircle2, Circle, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import type { Soup } from "@/types";
 
@@ -9,30 +11,39 @@ type SoupItemProps = {
 };
 
 const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
+	const { t } = useTranslation();
+
 	const getStatusIcon = () => {
 		const iconClassName = cn(
 			"size-4 shrink-0",
 			active && "text-primary-foreground",
 		);
 
-		if (soup.status === "resolved") {
-			return (
-				<CheckCircle2
-					className={cn(iconClassName, !active && "text-success")}
-				/>
-			);
+		switch (soup.status) {
+			case "creating":
+				return <Spinner className={iconClassName} />;
+			case "resolved":
+				return (
+					<CheckCircle2
+						className={cn(iconClassName, !active && "text-success")}
+					/>
+				);
+			case "given_up":
+				return (
+					<XCircle className={cn(iconClassName, !active && "text-warning")} />
+				);
+			case "unresolved":
+				return (
+					<Circle
+						className={cn(iconClassName, !active && "text-muted-foreground")}
+					/>
+				);
 		}
-		if (soup.status === "given_up") {
-			return (
-				<XCircle className={cn(iconClassName, !active && "text-warning")} />
-			);
-		}
-		return (
-			<Circle
-				className={cn(iconClassName, !active && "text-muted-foreground")}
-			/>
-		);
 	};
+
+	const isCreating = soup.status === "creating";
+
+	const title = isCreating ? t("soup.status.creating") : soup.title;
 
 	return (
 		<li
@@ -42,11 +53,12 @@ const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 				active && "bg-primary text-primary-foreground hover:bg-primary-hover",
 				soup.status === "resolved" && !active && "border-success border-l-2",
 				soup.status === "given_up" && !active && "border-warning border-l-2",
+				isCreating && "animate-pulse",
 			)}
 			onClick={onClick}
 		>
 			{getStatusIcon()}
-			<span className="truncate">{soup.title}</span>
+			<span className="truncate">{title}</span>
 		</li>
 	);
 };

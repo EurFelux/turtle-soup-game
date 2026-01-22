@@ -52,7 +52,7 @@ export type Try = z.infer<typeof TrySchema>;
 const HintsSchema = z.array(z.string().min(1).max(30));
 
 const _baseSoup = {
-	id: z.string(),
+	id: z.uuidv4(),
 	title: z.string(),
 	/* 汤面 */
 	surface: z.string(),
@@ -83,6 +83,7 @@ export const BaseDbSoupSchema = z.discriminatedUnion("status", [
 
 export type BaseDbSoup = z.infer<typeof BaseDbSoupSchema>;
 
+// Data Object
 export const DbSoupSchema = z.discriminatedUnion("status", [
 	z.object({
 		status: z.literal("unresolved"),
@@ -107,26 +108,50 @@ export const DbSoupSchema = z.discriminatedUnion("status", [
 
 export type DbSoup = z.infer<typeof DbSoupSchema>;
 
+const CreatingSoupSchema = z.object({
+	id: z.uuidv4(),
+	status: z.literal("creating"),
+});
+
+export type CreatingSoup = z.infer<typeof CreatingSoupSchema>;
+
+const UnresolvedSoupSchema = z.object({
+	status: z.literal("unresolved"),
+	..._baseSoup,
+	tries: z.array(TrySchema),
+});
+
+export type UnresolvedSoup = z.infer<typeof UnresolvedSoupSchema>;
+
+const ResolvedSoupSchema = z.object({
+	status: z.literal("resolved"),
+	..._baseSoup,
+	tries: z.array(TrySchema),
+	solution: z.string(),
+	score: z.number(),
+	explanation: z.string(),
+});
+
+export type ResolvedSoup = z.infer<typeof ResolvedSoupSchema>;
+
+const GivenUpSoupSchema = z.object({
+	status: z.literal("given_up"),
+	..._baseSoup,
+	tries: z.array(TrySchema),
+	explanation: z.string(),
+});
+
+export type GivenUpSoup = z.infer<typeof GivenUpSoupSchema>;
+
 export const SoupSchema = z.discriminatedUnion("status", [
-	z.object({
-		status: z.literal("unresolved"),
-		..._baseSoup,
-		tries: z.array(TrySchema),
-	}),
-	z.object({
-		status: z.literal("resolved"),
-		..._baseSoup,
-		tries: z.array(TrySchema),
-		solution: z.string(),
-		score: z.number(),
-		explanation: z.string(),
-	}),
-	z.object({
-		status: z.literal("given_up"),
-		..._baseSoup,
-		tries: z.array(TrySchema),
-		explanation: z.string(),
-	}),
+	CreatingSoupSchema,
+	UnresolvedSoupSchema,
+	ResolvedSoupSchema,
+	GivenUpSoupSchema,
 ]);
 
 export type Soup = z.infer<typeof SoupSchema>;
+
+export type NotCreatingSoup = UnresolvedSoup | ResolvedSoup | GivenUpSoup;
+
+export type CreateSoupParams = BaseDbSoup;

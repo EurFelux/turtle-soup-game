@@ -17,7 +17,7 @@ const NavBar = () => {
 			</div>
 
 			{/* Tool Buttons */}
-			<div className="flex flex-shrink-0 items-center gap-1">
+			<div className="flex shrink-0 items-center gap-1">
 				<a
 					href="https://github.com/EurFelux/turtle-soup-game"
 					target="_blank"

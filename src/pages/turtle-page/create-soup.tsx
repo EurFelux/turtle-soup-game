@@ -2,15 +2,19 @@ import { WandSparklesIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useSWRConfig } from "swr";
 import { checkAiSettings, createSoupFromAI } from "@/business/ai";
 import { createInspirationPrompt } from "@/business/inspiration";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { swrKeyMap } from "@/config/swr";
+import { getAllSoups } from "@/db";
 import { useLocale } from "@/hooks/useLocale";
-import type { AiSettings } from "@/types";
+import { type AiSettings, type CreatingSoup, type Soup } from "@/types";
 import { getErrorMessage } from "@/utils/error";
+import { uuidv4 } from "@/utils/uuid";
 
 type CreateSoupFormProps = {
 	aiSettings: AiSettings;
@@ -25,6 +29,7 @@ const CreateSoupForm = ({
 	const { locale } = useLocale();
 	const [userPrompt, setUserPrompt] = useState<string>("");
 	const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
+	const { mutate } = useSWRConfig();
 
 	const handleCreatePrompt = useCallback(() => {
 		const prompt = createInspirationPrompt({ locale });
@@ -40,16 +45,33 @@ const CreateSoupForm = ({
 			}
 			setIsSubmiting(true);
 			try {
-				const id = await createSoupFromAI({ userPrompt, locale, aiSettings });
-				setActiveSoup(id);
+				const creating: CreatingSoup = { id: uuidv4(), status: "creating" };
+				mutate<Soup[]>(
+					swrKeyMap.soups,
+					async () => {
+						const created = await createSoupFromAI({
+							userPrompt,
+							locale,
+							aiSettings,
+						});
+						setActiveSoup(created.id);
+						return getAllSoups();
+					},
+					{
+						optimisticData: (current) =>
+							current ? [...current, creating] : [creating],
+						rollbackOnError: true,
+					},
+				);
 			} catch (e) {
 				toast.error(getErrorMessage(e));
 				console.error(e);
 			} finally {
+				mutate<Soup[]>(swrKeyMap.soups);
 				setIsSubmiting(false);
 			}
 		},
-		[aiSettings, t, userPrompt, locale, setActiveSoup],
+		[aiSettings, mutate, t, userPrompt, locale, setActiveSoup],
 	);
 
 	return (

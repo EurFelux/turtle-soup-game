@@ -79,6 +79,11 @@
 			}
 		}
 	},
+	"soup": {
+		"status": {
+			"creating": "创作中"
+		}
+	},
 	"theme": {
 		"dark": "深色",
 		"light": "浅色",

@@ -79,6 +79,11 @@
 			}
 		}
 	},
+	"soup": {
+		"status": {
+			"creating": "Creating"
+		}
+	},
 	"theme": {
 		"dark": "Dark",
 		"light": "Light",

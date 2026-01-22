@@ -58,11 +58,7 @@ const SoupList = ({
 		);
 	}
 
-	return (
-		<ul className="flex h-full flex-col gap-1.5 rounded-lg bg-secondary p-4">
-			{content}
-		</ul>
-	);
+	return <ul className="flex h-full flex-col gap-1.5">{content}</ul>;
 };
 
 export default SoupList;

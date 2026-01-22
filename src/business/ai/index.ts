@@ -33,9 +33,10 @@ import { swrKeyMap } from "@/config/swr";
 import { addTryToSoup, createSoup, getDbSoupById, setSoup } from "@/db";
 import {
 	type AiSettings,
+	type CreateSoupParams,
 	type DbSoup,
 	type LocaleCode,
-	type Soup,
+	type NotCreatingSoup,
 	type Try,
 	TryResponseSchema,
 } from "@/types";
@@ -79,7 +80,7 @@ const CreateSoupResultSchema = z.object({
 	truth: z.string(),
 });
 
-type CreateSoupParams = {
+type CreateSoupFromAiParams = {
 	userPrompt?: string;
 	aiSettings: AiSettings;
 	locale: LocaleCode;
@@ -91,7 +92,7 @@ export const createSoupFromAI = async ({
 	aiSettings,
 	locale,
 	signal,
-}: CreateSoupParams): Promise<string> => {
+}: CreateSoupFromAiParams): Promise<NotCreatingSoup> => {
 	const provider = createProvider(aiSettings);
 	const systemPrompt = createSoupPrompt.replaceAll(LOCALE_VARIABLE, locale);
 	const result = await generateText({
@@ -116,16 +117,17 @@ export const createSoupFromAI = async ({
 		throw new Error(`Invalid data: ${parsedSoup.error}`);
 	}
 	const soup = parsedSoup.data;
-	const id = await createSoup({
-		id: uuidv4(),
+	const soupId = uuidv4();
+
+	const params = {
+		id: soupId,
 		status: "unresolved",
 		title: soup.title,
 		surface: soup.surface,
 		truth: soup.truth,
 		hints: [],
-	});
-	mutate(swrKeyMap.soups, (data) => [...(data || []), soup]);
-	return id;
+	} satisfies CreateSoupParams;
+	return createSoup(params);
 };
 
 const CreateTryResultSchema = z.discriminatedUnion("status", [
@@ -219,7 +221,7 @@ const CreateSolutionResultSchema = z.object({
 });
 
 type CreateSolutionParams = {
-	soup: Soup;
+	soup: NotCreatingSoup;
 	userSolution: string;
 	aiSettings: AiSettings;
 	locale: LocaleCode;
@@ -337,7 +339,7 @@ export const createSolutionFromAI = async ({
 };
 
 type GiveUpParams = {
-	soup: Soup;
+	soup: NotCreatingSoup;
 	aiSettings: AiSettings;
 	locale: LocaleCode;
 	signal?: AbortSignal;
@@ -395,7 +397,7 @@ export const giveUpSoupFromAI = async ({
 };
 
 type RequestHintParams = {
-	soup: Soup;
+	soup: NotCreatingSoup;
 	aiSettings: AiSettings;
 	locale: LocaleCode;
 	signal?: AbortSignal;

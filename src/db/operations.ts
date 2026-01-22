@@ -15,7 +15,7 @@ import {
 	type DbSoup,
 	DbSoupSchema,
 	type DbTry,
-	type Soup,
+	type NotCreatingSoup,
 	type Try,
 	TrySchema,
 } from "@/types";
@@ -26,7 +26,7 @@ import db from "./database";
 /**
  * Create a new soup puzzle
  */
-export async function createSoup(soup: BaseDbSoup): Promise<string> {
+export async function createSoup(soup: BaseDbSoup): Promise<NotCreatingSoup> {
 	// Runtime validation with Zod
 	const dbSoup = {
 		...soup,
@@ -34,7 +34,10 @@ export async function createSoup(soup: BaseDbSoup): Promise<string> {
 		updateAt: new Date().toISOString(),
 	} satisfies DbSoup;
 	const validatedSoup = DbSoupSchema.parse(dbSoup);
-	return db.soups.add(validatedSoup);
+	const id = await db.soups.add(validatedSoup);
+	const created = await getSoupById(id);
+	if (!created) throw new Error(`Soup with id ${id} not found`);
+	return created;
 }
 
 /**
@@ -170,7 +173,9 @@ export async function getTriesBySoupId(soupId: string): Promise<DbTry[]> {
 /**
  * Get soup puzzle with all its try records
  */
-export async function getSoupById(soupId: string): Promise<Soup | null> {
+export async function getSoupById(
+	soupId: string,
+): Promise<NotCreatingSoup | null> {
 	const dbSoup = await getDbSoupById(soupId);
 	if (!dbSoup) return null;
 
@@ -221,7 +226,7 @@ export async function getSoupById(soupId: string): Promise<Soup | null> {
 /**
  * Get all soup puzzles with their try records
  */
-export async function getAllSoups(): Promise<Soup[]> {
+export async function getAllSoups(): Promise<NotCreatingSoup[]> {
 	const dbSoups = await getAllDbSoups();
 	const allDbTries = await db.tries.toArray();
 
@@ -235,7 +240,7 @@ export async function getAllSoups(): Promise<Soup[]> {
 	}
 
 	// Convert DbSoup to Soup with associated tries
-	return dbSoups.map((dbSoup): Soup => {
+	return dbSoups.map((dbSoup): NotCreatingSoup => {
 		if (dbSoup.status === "resolved") {
 			return {
 				id: dbSoup.id,
