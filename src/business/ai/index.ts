@@ -91,7 +91,7 @@ export const createSoupFromAI = async ({
 	aiSettings,
 	locale,
 	signal,
-}: CreateSoupParams) => {
+}: CreateSoupParams): Promise<string> => {
 	const provider = createProvider(aiSettings);
 	const systemPrompt = createSoupPrompt.replaceAll(LOCALE_VARIABLE, locale);
 	const result = await generateText({
@@ -116,7 +116,7 @@ export const createSoupFromAI = async ({
 		throw new Error(`Invalid data: ${parsedSoup.error}`);
 	}
 	const soup = parsedSoup.data;
-	await createSoup({
+	const id = await createSoup({
 		id: uuidv4(),
 		status: "unresolved",
 		title: soup.title,
@@ -125,7 +125,7 @@ export const createSoupFromAI = async ({
 		hints: [],
 	});
 	mutate(swrKeyMap.soups, (data) => [...(data || []), soup]);
-	return parsedSoup.data;
+	return id;
 };
 
 const CreateTryResultSchema = z.discriminatedUnion("status", [

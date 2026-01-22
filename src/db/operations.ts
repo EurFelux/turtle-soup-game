@@ -34,7 +34,7 @@ export async function createSoup(soup: BaseDbSoup): Promise<string> {
 		updateAt: new Date().toISOString(),
 	} satisfies DbSoup;
 	const validatedSoup = DbSoupSchema.parse(dbSoup);
-	return await db.soups.add(validatedSoup);
+	return db.soups.add(validatedSoup);
 }
 
 /**

@@ -14,9 +14,13 @@ import { getErrorMessage } from "@/utils/error";
 
 type CreateSoupFormProps = {
 	aiSettings: AiSettings;
+	setActiveSoupId: (id: string) => void;
 };
 
-const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
+const CreateSoupForm = ({
+	aiSettings,
+	setActiveSoupId: setActiveSoup,
+}: CreateSoupFormProps) => {
 	const { t } = useTranslation();
 	const { locale } = useLocale();
 	const [userPrompt, setUserPrompt] = useState<string>("");
@@ -36,7 +40,8 @@ const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
 			}
 			setIsSubmiting(true);
 			try {
-				await createSoupFromAI({ userPrompt, locale, aiSettings });
+				const id = await createSoupFromAI({ userPrompt, locale, aiSettings });
+				setActiveSoup(id);
 			} catch (e) {
 				toast.error(getErrorMessage(e));
 				console.error(e);
@@ -44,7 +49,7 @@ const CreateSoupForm = ({ aiSettings }: CreateSoupFormProps) => {
 				setIsSubmiting(false);
 			}
 		},
-		[aiSettings, t, userPrompt, locale],
+		[aiSettings, t, userPrompt, locale, setActiveSoup],
 	);
 
 	return (

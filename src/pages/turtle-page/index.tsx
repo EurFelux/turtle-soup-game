@@ -73,7 +73,10 @@ const TurtlePage = () => {
 				className="mx-2 hidden xl:block"
 			></Separator>
 			<div className="min-w-0 flex-1">
-				<CreateSoupForm aiSettings={settings} />
+				<CreateSoupForm
+					aiSettings={settings}
+					setActiveSoupId={setActiveSoupId}
+				/>
 				<Separator className="my-2" />
 				{soup && <MainGame soup={soup} aiSettings={settings} />}
 			</div>
