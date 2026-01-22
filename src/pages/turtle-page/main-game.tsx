@@ -33,6 +33,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { useRequesting } from "@/hooks/useRequesting";
 import type { AiSettings, NotCreatingSoup } from "@/types";
 import { getErrorMessage } from "@/utils/error";
+import HintList from "./hint-list";
 import TryList from "./try-list";
 
 type MainGameProps = {
@@ -215,17 +216,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 						<h2 className="mb-4 text-2xl">
 							{t("page.turtle.main_game.hints.title")}
 						</h2>
-						<div className="space-y-2">
-							{soup.hints.map((hint, index) => (
-								<div
-									key={index}
-									className="flex items-start gap-2 rounded-lg border p-3"
-								>
-									<Lightbulb className="size-5 shrink-0 text-yellow-500" />
-									<p className="text-sm">{hint}</p>
-								</div>
-							))}
-						</div>
+						<HintList hints={soup.hints} />
 					</section>
 					<Separator className="m-2" />
 				</>
