@@ -6,8 +6,8 @@ import { useSWRConfig } from "swr";
 import { checkAiSettings, createSoupFromAI } from "@/business/ai";
 import { createInspirationPrompt } from "@/business/inspiration";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { swrKeyMap } from "@/config/swr";
 import { getAllSoups } from "@/db";
@@ -27,8 +27,8 @@ const CreateSoupForm = ({
 }: CreateSoupFormProps) => {
 	const { t } = useTranslation();
 	const { locale } = useLocale();
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [userPrompt, setUserPrompt] = useState<string>("");
-	const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
 	const { mutate } = useSWRConfig();
 
 	const handleCreatePrompt = useCallback(() => {
@@ -43,14 +43,15 @@ const CreateSoupForm = ({
 				toast.error(t("page.turtle.error.invalid_ai_settings"));
 				return;
 			}
-			setIsSubmiting(true);
 			try {
 				const creating: CreatingSoup = {
 					id: uuidv4(),
 					status: "creating",
 					createAt: new Date().toISOString(),
 				};
-				mutate<Soup[]>(
+				setIsOpen(false);
+				setUserPrompt("");
+				await mutate<Soup[]>(
 					swrKeyMap.soups,
 					async () => {
 						const created = await createSoupFromAI({
@@ -70,43 +71,59 @@ const CreateSoupForm = ({
 			} catch (e) {
 				toast.error(getErrorMessage(e));
 				console.error(e);
-			} finally {
-				mutate<Soup[]>(swrKeyMap.soups);
-				setIsSubmiting(false);
 			}
 		},
 		[aiSettings, mutate, t, userPrompt, locale, setActiveSoup],
 	);
 
+	const handleClose = () => {
+		setIsOpen(false);
+	};
+
 	return (
-		<div className="rounded-lg bg-secondary p-4">
-			<h2 className="mb-4 text-2xl">{t("page.turtle.create_soup.title")}</h2>
-			<form onSubmit={handleSubmit}>
-				<Field>
-					<FieldLabel>{t("page.turtle.create_soup.prompt.label")}</FieldLabel>
-					<Textarea
-						value={userPrompt}
-						onChange={(e) => setUserPrompt(e.target.value)}
-						placeholder={t("page.turtle.create_soup.prompt.placeholder")}
-						disabled={isSubmiting}
-						className="mb-2"
-					/>
-				</Field>
-				<div className="flex justify-between">
-					<Button
-						type="button"
-						disabled={isSubmiting}
-						onClick={handleCreatePrompt}
-					>
-						<WandSparklesIcon className="size-4" />
-						{t("page.turtle.create_soup.prompt.generate")}
-					</Button>
-					<Button type="submit" disabled={isSubmiting}>
-						{isSubmiting ? <Spinner /> : t("page.turtle.create_soup.create")}
-					</Button>
+		<Dialog open={isOpen}>
+			<DialogTrigger asChild>
+				<Button
+					onClick={() => {
+						setIsOpen(true);
+					}}
+				>
+					{t("page.turtle.create_soup.title")}
+				</Button>
+			</DialogTrigger>
+			<DialogContent
+				className="rounded-lg bg-secondary p-4"
+				onClose={handleClose}
+			>
+				<div>
+					<h2 className="mb-4 text-2xl">
+						{t("page.turtle.create_soup.title")}
+					</h2>
+					<form onSubmit={handleSubmit}>
+						<Field>
+							<FieldLabel>
+								{t("page.turtle.create_soup.prompt.label")}
+							</FieldLabel>
+							<Textarea
+								value={userPrompt}
+								onChange={(e) => setUserPrompt(e.target.value)}
+								placeholder={t("page.turtle.create_soup.prompt.placeholder")}
+								className="mb-2"
+							/>
+						</Field>
+						<div className="mt-1 flex justify-between">
+							<Button type="button" onClick={handleCreatePrompt}>
+								<WandSparklesIcon className="size-4" />
+								{t("page.turtle.create_soup.prompt.generate")}
+							</Button>
+							<Button type="submit">
+								{t("page.turtle.create_soup.create")}
+							</Button>
+						</div>
+					</form>
 				</div>
-			</form>
-		</div>
+			</DialogContent>
+		</Dialog>
 	);
 };
 
