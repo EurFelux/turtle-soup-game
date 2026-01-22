@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { defaultAiSettings } from "@/config/ai";
-import { LocalStorageKeyMap } from "@/config/storage";
+import { localStorageKeyMap } from "@/config/storage";
 import { swrKeyMap } from "@/config/swr";
 import { getAllSoups } from "@/db";
 import type { Soup } from "@/types";
@@ -21,7 +21,7 @@ import { useTurtleContext } from "./useTurtleContext";
 const TurtlePage = () => {
 	const { t } = useTranslation();
 	const [settings, _setSettings] = useState<AiSettings>(() => {
-		const settings = localStorage.getItem(LocalStorageKeyMap.aiSettings);
+		const settings = localStorage.getItem(localStorageKeyMap.aiSettings);
 		if (settings === null) {
 			return defaultAiSettings;
 		}
@@ -51,7 +51,7 @@ const TurtlePage = () => {
 	const setSettings = useCallback(
 		(settings: AiSettings) => {
 			localStorage.setItem(
-				LocalStorageKeyMap.aiSettings,
+				localStorageKeyMap.aiSettings,
 				JSON.stringify(settings),
 			);
 			_setSettings(settings);

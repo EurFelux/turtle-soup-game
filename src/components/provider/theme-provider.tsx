@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { LocalStorageKeyMap } from "@/config/storage";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { localStorageKeyMap } from "@/config/storage";
 import { ThemeProviderContext } from "@/context/theme";
 import type { Theme } from "@/types";
 
@@ -12,11 +12,23 @@ type ThemeProviderProps = {
 export function ThemeProvider({
 	children,
 	defaultTheme = "system",
-	storageKey = LocalStorageKeyMap.theme,
 	...props
 }: ThemeProviderProps) {
 	const [theme, setTheme] = useState<Theme>(
-		() => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+		() =>
+			(localStorage.getItem(localStorageKeyMap.theme) as Theme) || defaultTheme,
+	);
+
+	const isDark = useSyncExternalStore(
+		(listener) => {
+			const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+			mediaQuery.addEventListener("change", listener);
+
+			return () => {
+				window.removeEventListener("change", listener);
+			};
+		},
+		() => window.matchMedia("(prefers-color-scheme: dark)").matches,
 	);
 
 	useEffect(() => {
@@ -35,12 +47,13 @@ export function ThemeProvider({
 		}
 
 		root.classList.add(theme);
-	}, [theme]);
+		// subscribe isDark, so internal theme changes are reflected
+	}, [theme, isDark]);
 
 	const value = {
 		theme,
 		setTheme: (theme: Theme) => {
-			localStorage.setItem(storageKey, theme);
+			localStorage.setItem(localStorageKeyMap.theme, theme);
 			setTheme(theme);
 		},
 	};
