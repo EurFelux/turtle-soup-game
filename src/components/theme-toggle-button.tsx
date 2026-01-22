@@ -41,7 +41,7 @@ export const ThemeToggleButotn = () => {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger>
+			<DropdownMenuTrigger asChild>
 				<Button>
 					<Icon className="size-4" />
 				</Button>

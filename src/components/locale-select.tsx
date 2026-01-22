@@ -38,7 +38,7 @@ export const LocaleSelect = () => {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger>
+			<DropdownMenuTrigger asChild>
 				<Button>
 					<LanguagesIcon className="size-4" />
 				</Button>
