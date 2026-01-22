@@ -29,6 +29,7 @@
 		"turtle": {
 			"create_soup": {
 				"create": "创作",
+				"description": "在下面输入你想要的主题，AI 就会为你创作一个基于该主题的海龟汤故事。",
 				"prompt": {
 					"generate": "随机主题",
 					"label": "创作主题",
@@ -73,6 +74,13 @@
 					"submit": "询问",
 					"title": "询问"
 				}
+			},
+			"noActiveSoup": {
+				"description": "page.turtle.noActiveSoup.description",
+				"title": "page.turtle.noActiveSoup.title"
+			},
+			"success": {
+				"created": "创建成功： {{title}}"
 			},
 			"try_list": {
 				"empty": "无尝试"

@@ -83,7 +83,7 @@ const AiSettingsSection = ({
 		},
 		{ value: "anthropic", label: "Anthropic" },
 		{ value: "gemini", label: "Gemini" },
-	] satisfies ProviderTypeItem[];
+	] as const satisfies ProviderTypeItem[];
 
 	return (
 		<div className="rounded-lg bg-secondary p-4">

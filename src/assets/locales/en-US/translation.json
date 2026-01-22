@@ -29,6 +29,7 @@
 		"turtle": {
 			"create_soup": {
 				"create": "Create",
+				"description": "Enter your desired theme below, and the AI will create a story based on that theme.",
 				"prompt": {
 					"generate": "Random Theme",
 					"label": "Creative Theme",
@@ -73,6 +74,13 @@
 					"submit": "Ask",
 					"title": "Ask"
 				}
+			},
+			"noActiveSoup": {
+				"description": "",
+				"title": ""
+			},
+			"success": {
+				"created": "Created: {{title}}"
 			},
 			"try_list": {
 				"empty": "No tries yet"

@@ -1,33 +1,37 @@
 import { WandSparklesIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { checkAiSettings, createSoupFromAI } from "@/business/ai";
 import { createInspirationPrompt } from "@/business/inspiration";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { swrKeyMap } from "@/config/swr";
 import { getAllSoups } from "@/db";
 import { useLocale } from "@/hooks/useLocale";
-import { type AiSettings, type CreatingSoup, type Soup } from "@/types";
+import { cn } from "@/lib/utils";
+import type { AiSettings, CreatingSoup, Soup } from "@/types";
 import { getErrorMessage } from "@/utils/error";
 import { uuidv4 } from "@/utils/uuid";
 
-type CreateSoupFormProps = {
+type CreateSoupContentProps = {
 	aiSettings: AiSettings;
-	setActiveSoupId: (id: string) => void;
+	/* called when starting to submit */
+	onSubmit?: () => void;
+	/* of form element */
+	className?: string;
 };
 
-const CreateSoupForm = ({
+const CreateSoupContent = ({
 	aiSettings,
-	setActiveSoupId: setActiveSoup,
-}: CreateSoupFormProps) => {
+	onSubmit,
+	className,
+}: CreateSoupContentProps) => {
 	const { t } = useTranslation();
 	const { locale } = useLocale();
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+
 	const [userPrompt, setUserPrompt] = useState<string>("");
 	const { mutate } = useSWRConfig();
 
@@ -49,8 +53,8 @@ const CreateSoupForm = ({
 					status: "creating",
 					createAt: new Date().toISOString(),
 				};
-				setIsOpen(false);
 				setUserPrompt("");
+				onSubmit?.();
 				await mutate<Soup[]>(
 					swrKeyMap.soups,
 					async () => {
@@ -59,7 +63,9 @@ const CreateSoupForm = ({
 							locale,
 							aiSettings,
 						});
-						setActiveSoup(created.id);
+						toast.success(
+							t("page.turtle.success.created", { title: created.title }),
+						);
 						return getAllSoups();
 					},
 					{
@@ -73,58 +79,33 @@ const CreateSoupForm = ({
 				console.error(e);
 			}
 		},
-		[aiSettings, mutate, t, userPrompt, locale, setActiveSoup],
+		[aiSettings, t, onSubmit, mutate, userPrompt, locale],
 	);
 
-	const handleClose = () => {
-		setIsOpen(false);
-	};
-
+	const promptId = useId();
 	return (
-		<Dialog open={isOpen}>
-			<DialogTrigger asChild>
-				<Button
-					onClick={() => {
-						setIsOpen(true);
-					}}
-				>
-					{t("page.turtle.create_soup.title")}
+		<form onSubmit={handleSubmit} className={cn("flex flex-col", className)}>
+			<Field className="flex-1">
+				<FieldLabel htmlFor={promptId}>
+					{t("page.turtle.create_soup.prompt.label")}
+				</FieldLabel>
+				<Textarea
+					id={promptId}
+					value={userPrompt}
+					onChange={(e) => setUserPrompt(e.target.value)}
+					placeholder={t("page.turtle.create_soup.prompt.placeholder")}
+					className="mb-2 flex-1"
+				/>
+			</Field>
+			<div className="mt-1 flex justify-between">
+				<Button type="button" onClick={handleCreatePrompt}>
+					<WandSparklesIcon className="size-4" />
+					{t("page.turtle.create_soup.prompt.generate")}
 				</Button>
-			</DialogTrigger>
-			<DialogContent
-				className="rounded-lg bg-secondary p-4"
-				onClose={handleClose}
-			>
-				<div>
-					<h2 className="mb-4 text-2xl">
-						{t("page.turtle.create_soup.title")}
-					</h2>
-					<form onSubmit={handleSubmit}>
-						<Field>
-							<FieldLabel>
-								{t("page.turtle.create_soup.prompt.label")}
-							</FieldLabel>
-							<Textarea
-								value={userPrompt}
-								onChange={(e) => setUserPrompt(e.target.value)}
-								placeholder={t("page.turtle.create_soup.prompt.placeholder")}
-								className="mb-2"
-							/>
-						</Field>
-						<div className="mt-1 flex justify-between">
-							<Button type="button" onClick={handleCreatePrompt}>
-								<WandSparklesIcon className="size-4" />
-								{t("page.turtle.create_soup.prompt.generate")}
-							</Button>
-							<Button type="submit">
-								{t("page.turtle.create_soup.create")}
-							</Button>
-						</div>
-					</form>
-				</div>
-			</DialogContent>
-		</Dialog>
+				<Button type="submit">{t("page.turtle.create_soup.create")}</Button>
+			</div>
+		</form>
 	);
 };
 
-export default CreateSoupForm;
+export default CreateSoupContent;

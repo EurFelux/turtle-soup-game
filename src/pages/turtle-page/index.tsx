@@ -9,8 +9,9 @@ import { getAllSoups } from "@/db";
 import type { Soup } from "@/types";
 import { type AiSettings, AiSettingsSchema } from "@/types/ai";
 import { safeParseJson } from "@/utils/json";
-import CreateSoupForm from "./create-soup";
+import CreateSoupDialog from "./create-soup-dialog";
 import MainGame from "./main-game";
+import NoActiveSoup from "./no-active-soup";
 import SoupList from "./soup-list";
 
 const TurtlePage = () => {
@@ -70,10 +71,7 @@ const TurtlePage = () => {
 	return (
 		<div className="flex h-full flex-1 flex-col gap-4 p-4 xl:flex-row xl:gap-0 xl:p-8">
 			<div className="flex max-h-72 w-full flex-col overflow-y-auto rounded-lg bg-secondary p-4 xl:max-h-full xl:w-60">
-				<CreateSoupForm
-					aiSettings={settings}
-					setActiveSoupId={setActiveSoupId}
-				/>
+				<CreateSoupDialog aiSettings={settings} />
 				<Separator className="my-3" />
 				<SoupList
 					soups={sortedSoups}
@@ -88,6 +86,7 @@ const TurtlePage = () => {
 			></Separator>
 			<div className="min-w-0 flex-1 overflow-auto">
 				{activeSoup && <MainGame soup={activeSoup} aiSettings={settings} />}
+				{!activeSoup && <NoActiveSoup aiSettings={settings} />}
 			</div>
 			<Separator
 				orientation="vertical"
