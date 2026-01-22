@@ -89,7 +89,7 @@ const TurtlePage = () => {
 			<div className="flex min-w-0 flex-1 flex-col">
 				{activeSoup && activeSoup.status === "creating" && (
 					<Skeleton className="flex flex-1 items-center justify-center rounded-lg bg-secondary">
-						{t("soup.status.creating")}
+						{t("page.turtle.loading.create")}
 					</Skeleton>
 				)}
 				{!activeSoup && <NoActiveSoup aiSettings={settings} />}

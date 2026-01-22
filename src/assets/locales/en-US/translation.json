@@ -40,6 +40,9 @@
 			"error": {
 				"invalid_ai_settings": "AI Provider Settings is invalid"
 			},
+			"loading": {
+				"create": "Creating..."
+			},
 			"main_game": {
 				"give_up": {
 					"alert_content": "You gave up this puzzle. 🙁",
@@ -77,18 +80,13 @@
 			},
 			"success": {
 				"created": {
-					"message": "Created: {{title}}",
-					"action": "Jump"
+					"action": "Jump",
+					"message": "Created: {{title}}"
 				}
 			},
 			"try_list": {
 				"empty": "No tries yet"
 			}
-		}
-	},
-	"soup": {
-		"status": {
-			"creating": "Creating"
 		}
 	},
 	"theme": {

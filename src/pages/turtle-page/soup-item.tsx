@@ -48,7 +48,7 @@ const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 	const isCreating = soup.status === "creating";
 	const shouldPulse = isCreating || isRequesting;
 
-	const title = isCreating ? t("soup.status.creating") : soup.title;
+	const title = isCreating ? t("page.turtle.loading.create") : soup.title;
 
 	return (
 		<li

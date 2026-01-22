@@ -40,6 +40,9 @@
 			"error": {
 				"invalid_ai_settings": "AI 提供商设置缺失"
 			},
+			"loading": {
+				"create": "创作中..."
+			},
 			"main_game": {
 				"give_up": {
 					"alert_content": "你放弃了这个谜题🙁",
@@ -77,18 +80,13 @@
 			},
 			"success": {
 				"created": {
-					"message": "创建成功： {{title}}",
-					"action": "跳转"
+					"action": "跳转",
+					"message": "创建成功： {{title}}"
 				}
 			},
 			"try_list": {
 				"empty": "无尝试"
 			}
-		}
-	},
-	"soup": {
-		"status": {
-			"creating": "创作中"
 		}
 	},
 	"theme": {

@@ -59,25 +59,27 @@ const CreateSoupContent = ({
 			await mutate<Soup[]>(
 				swrKeyMap.soups,
 				async () => {
-					const created = await createSoupFromAI({
+					const promise = createSoupFromAI({
 						id: newSoupId,
 						userPrompt,
 						locale,
 						aiSettings,
 					});
-					toast.success(
-						t("page.turtle.success.created.message", {
-							title: created.title,
-						}),
-						{
+					toast.promise(promise, {
+						loading: t("page.turtle.loading.create"),
+						success: (created) => ({
+							message: t("page.turtle.success.created.message", {
+								title: created.title,
+							}),
 							action: {
 								label: t("page.turtle.success.created.action"),
 								onClick: () => {
 									setActiveSoupId(newSoupId);
 								},
 							},
-						},
-					);
+						}),
+					});
+					await promise;
 					return getAllSoups();
 				},
 				{
