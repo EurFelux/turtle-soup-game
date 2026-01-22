@@ -1,5 +1,5 @@
 import { XCircleIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +14,8 @@ type TryListProps = {
 
 const TryList = ({ tries, error }: TryListProps) => {
 	const { t } = useTranslation();
+	const lastTryRef = useRef<HTMLLIElement>(null);
+
 	const sortedTries = useMemo(() => {
 		if (!tries) return undefined;
 		// Sort by createAt ascending (oldest first, newest at bottom)
@@ -21,6 +23,16 @@ const TryList = ({ tries, error }: TryListProps) => {
 			return a.createAt.localeCompare(b.createAt);
 		});
 	}, [tries]);
+
+	// Auto-scroll to the latest try when new try is added
+	useEffect(() => {
+		if (sortedTries && sortedTries.length > 0 && lastTryRef.current) {
+			lastTryRef.current.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest",
+			});
+		}
+	}, [sortedTries]);
 
 	const content = useMemo(() => {
 		if (sortedTries === undefined) {
@@ -50,9 +62,16 @@ const TryList = ({ tries, error }: TryListProps) => {
 			);
 		}
 
-		return sortedTries.map((tryRecord: Try) => (
-			<TryItem key={tryRecord.id} tryRecord={tryRecord} />
-		));
+		return sortedTries.map((tryRecord: Try, index: number) => {
+			const isLast = index === sortedTries.length - 1;
+			return (
+				<TryItem
+					key={tryRecord.id}
+					tryRecord={tryRecord}
+					ref={isLast ? lastTryRef : null}
+				/>
+			);
+		});
 	}, [sortedTries, t]);
 
 	if (error) {
