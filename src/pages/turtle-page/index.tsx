@@ -74,15 +74,17 @@ const TurtlePage = () => {
 
 	return (
 		<div className="flex h-full flex-1 flex-col gap-4 p-4 xl:flex-row xl:gap-0 xl:p-8">
-			<div className="flex max-h-72 w-full flex-col overflow-y-auto rounded-lg bg-secondary p-4 xl:max-h-full xl:w-60">
+			<div className="flex max-h-72 w-full flex-col overflow-hidden rounded-lg bg-secondary p-4 xl:max-h-full xl:w-60">
 				<CreateSoupDialog aiSettings={settings} />
 				<Separator className="my-3" />
-				<SoupList
-					soups={sortedSoups}
-					error={error}
-					activeSoupId={activeSoupId}
-					setActiveSoupId={setActiveSoupId}
-				></SoupList>
+				<ScrollArea className="overflow-auto">
+					<SoupList
+						soups={sortedSoups}
+						error={error}
+						activeSoupId={activeSoupId}
+						setActiveSoupId={setActiveSoupId}
+					/>
+				</ScrollArea>
 			</div>
 			<Separator
 				orientation="vertical"
