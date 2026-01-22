@@ -48,8 +48,9 @@ const CreateSoupContent = ({
 				return;
 			}
 			try {
+				const newSoupId = uuidv4();
 				const creating: CreatingSoup = {
-					id: uuidv4(),
+					id: newSoupId,
 					status: "creating",
 					createAt: new Date().toISOString(),
 				};
@@ -59,6 +60,7 @@ const CreateSoupContent = ({
 					swrKeyMap.soups,
 					async () => {
 						const created = await createSoupFromAI({
+							id: newSoupId,
 							userPrompt,
 							locale,
 							aiSettings,

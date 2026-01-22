@@ -139,5 +139,5 @@ export type NotCreatingSoup = UnresolvedSoup | ResolvedSoup | GivenUpSoup;
 
 export type CreateSoupParams = Omit<
 	BaseSoup,
-	"id" | "createAt" | "updateAt" | "hints"
+	"createAt" | "updateAt" | "hints"
 >;

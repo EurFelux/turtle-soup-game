@@ -33,7 +33,6 @@ export async function createSoup(
 	// Runtime validation with Zod
 	const dbSoup = {
 		...soup,
-		id: uuidv4(),
 		status: "unresolved",
 		hints: [],
 		createAt: new Date().toISOString(),

@@ -81,6 +81,7 @@ const CreateSoupResultSchema = z.object({
 });
 
 type CreateSoupFromAiParams = {
+	id: string;
 	userPrompt?: string;
 	aiSettings: AiSettings;
 	locale: LocaleCode;
@@ -88,6 +89,7 @@ type CreateSoupFromAiParams = {
 };
 
 export const createSoupFromAI = async ({
+	id,
 	userPrompt = "",
 	aiSettings,
 	locale,
@@ -119,6 +121,7 @@ export const createSoupFromAI = async ({
 	const soup = parsedSoup.data;
 
 	const params = {
+		id,
 		title: soup.title,
 		surface: soup.surface,
 		truth: soup.truth,
