@@ -26,18 +26,17 @@ import { Field, FieldContent, FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { swrKeyMap } from "@/config/swr";
 import { getTriesBySoupId } from "@/db";
 import { useLocale } from "@/hooks/useLocale";
-import type { AiSettings, Soup } from "@/types";
+import type { AiSettings, NotCreatingSoup } from "@/types";
 import { getErrorMessage } from "@/utils/error";
 import TryList from "./try-list";
 
 type MainGameProps = {
-	soup: Soup;
+	soup: NotCreatingSoup;
 	aiSettings: AiSettings;
 };
 
@@ -81,12 +80,6 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 			toast.error(t("page.turtle.error.invalid_ai_settings"));
 			return;
 		}
-		if (soup.status === "creating") {
-			console.warn(
-				"submitQuestion is called unexpectedly when soup.status is 'creating'",
-			);
-			return;
-		}
 		setIsRequesting(true);
 		try {
 			await createTryFromAI({
@@ -110,12 +103,6 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 			toast.error(t("page.turtle.error.invalid_ai_settings"));
 			return;
 		}
-		if (soup.status === "creating") {
-			console.warn(
-				"submitSolution is called unexpectedly when soup.status is 'creating'",
-			);
-			return;
-		}
 		setIsRequesting(true);
 		try {
 			await createSolutionFromAI({
@@ -135,12 +122,6 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	const handleGiveUp = async () => {
 		if (!checkAiSettings(aiSettings)) {
 			toast.error(t("page.turtle.error.invalid_ai_settings"));
-			return;
-		}
-		if (soup.status === "creating") {
-			console.warn(
-				"handleGiveUp is called unexpectedly when soup.status is 'creating'",
-			);
 			return;
 		}
 		setIsRequesting(true);
@@ -164,12 +145,6 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 			toast.error(t("page.turtle.error.invalid_ai_settings"));
 			return;
 		}
-		if (soup.status === "creating") {
-			console.warn(
-				"handleRequestHint is called unexpectedly when soup.status is 'creating'",
-			);
-			return;
-		}
 		setIsRequesting(true);
 		try {
 			const hint = await requestHintFromAI({
@@ -189,16 +164,8 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	const submitQuestionButtonDisabled = !question || isRequesting;
 	const submitSulutionButtonDisabled = !solution || isRequesting;
 
-	if (soup.status === "creating") {
-		return (
-			<Skeleton className="flex h-162 items-center justify-center rounded-lg bg-secondary">
-				{t("soup.status.creating")}
-			</Skeleton>
-		);
-	}
-
 	return (
-		<div className="flex flex-col gap-2 rounded-lg bg-secondary p-4">
+		<div className="flex flex-col gap-2">
 			{alertContent}
 			{/* Surface */}
 			<section className="rounded-lg bg-secondary p-4">

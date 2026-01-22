@@ -1,7 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import AiSettingsSection from "@/components/ai-settings-section";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { defaultAiSettings } from "@/config/ai";
 import { LocalStorageKeyMap } from "@/config/storage";
 import { swrKeyMap } from "@/config/swr";
@@ -15,6 +18,7 @@ import NoActiveSoup from "./no-active-soup";
 import SoupList from "./soup-list";
 
 const TurtlePage = () => {
+	const { t } = useTranslation();
 	const [settings, _setSettings] = useState<AiSettings>(() => {
 		const settings = localStorage.getItem(LocalStorageKeyMap.aiSettings);
 		if (settings === null) {
@@ -84,9 +88,18 @@ const TurtlePage = () => {
 				orientation="vertical"
 				className="mx-2 hidden xl:block"
 			></Separator>
-			<div className="min-w-0 flex-1 overflow-auto">
-				{activeSoup && <MainGame soup={activeSoup} aiSettings={settings} />}
+			<div className="flex min-w-0 flex-1 flex-col">
+				{activeSoup && activeSoup.status === "creating" && (
+					<Skeleton className="flex flex-1 items-center justify-center rounded-lg bg-secondary">
+						{t("soup.status.creating")}
+					</Skeleton>
+				)}
 				{!activeSoup && <NoActiveSoup aiSettings={settings} />}
+				{activeSoup && activeSoup.status !== "creating" && (
+					<ScrollArea className="flex-1 overflow-auto rounded-lg bg-secondary p-4">
+						<MainGame soup={activeSoup} aiSettings={settings} />
+					</ScrollArea>
+				)}
 			</div>
 			<Separator
 				orientation="vertical"
