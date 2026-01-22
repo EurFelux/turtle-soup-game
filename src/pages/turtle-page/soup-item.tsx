@@ -1,6 +1,7 @@
 import { CheckCircle2, Circle, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Spinner } from "@/components/ui/spinner";
+import { useRequesting } from "@/hooks/useRequesting";
 import { cn } from "@/lib/utils";
 import type { Soup } from "@/types";
 
@@ -12,6 +13,7 @@ type SoupItemProps = {
 
 const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 	const { t } = useTranslation();
+	const [isRequesting] = useRequesting(soup.id);
 
 	const getStatusIcon = () => {
 		const iconClassName = cn(
@@ -19,9 +21,11 @@ const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 			active && "text-primary-foreground",
 		);
 
+		if (isRequesting || soup.status === "creating") {
+			return <Spinner className={iconClassName} />;
+		}
+
 		switch (soup.status) {
-			case "creating":
-				return <Spinner className={iconClassName} />;
 			case "resolved":
 				return (
 					<CheckCircle2
@@ -42,6 +46,7 @@ const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 	};
 
 	const isCreating = soup.status === "creating";
+	const shouldPulse = isCreating || isRequesting;
 
 	const title = isCreating ? t("soup.status.creating") : soup.title;
 
@@ -53,12 +58,13 @@ const SoupItem = ({ soup, active, onClick }: SoupItemProps) => {
 				active && "bg-primary text-primary-foreground hover:bg-primary-hover",
 				soup.status === "resolved" && !active && "border-success border-l-2",
 				soup.status === "given_up" && !active && "border-warning border-l-2",
-				isCreating && "animate-pulse",
+				shouldPulse && "animate-pulse",
 			)}
 			onClick={onClick}
 		>
 			{getStatusIcon()}
 			<span className="truncate">{title}</span>
+			{isRequesting}
 		</li>
 	);
 };

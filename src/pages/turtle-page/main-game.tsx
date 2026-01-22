@@ -26,11 +26,11 @@ import { Field, FieldContent, FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { swrKeyMap } from "@/config/swr";
 import { getTriesBySoupId } from "@/db";
 import { useLocale } from "@/hooks/useLocale";
+import { useRequesting } from "@/hooks/useRequesting";
 import type { AiSettings, NotCreatingSoup } from "@/types";
 import { getErrorMessage } from "@/utils/error";
 import TryList from "./try-list";
@@ -43,10 +43,10 @@ type MainGameProps = {
 const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 	const { t } = useTranslation();
 	const [question, setQuestion] = useState<string>("");
-	const [isRequesting, setIsRequesting] = useState<boolean>(false);
 	const [solution, setSolution] = useState<string>("");
 	const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 	const { locale } = useLocale();
+	const [isRequesting, setIsRequesting] = useRequesting(soup.id);
 
 	const triesFetcher = async () => {
 		return getTriesBySoupId(soup.id);
@@ -146,6 +146,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 			return;
 		}
 		setIsRequesting(true);
+		console.log("requesting", isRequesting);
 		try {
 			const hint = await requestHintFromAI({
 				soup,
@@ -278,8 +279,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 								onClick={handleRequestHint}
 								disabled={isRequesting}
 							>
-								{isRequesting && <Spinner />}
-								<Lightbulb className="size-4" />
+								{!isRequesting && <Lightbulb className="size-4" />}
 								{t("page.turtle.main_game.hint.button")}
 							</Button>
 							<Button
@@ -287,7 +287,6 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 								onClick={submitQuestion}
 								disabled={submitQuestionButtonDisabled}
 							>
-								{isRequesting && <Spinner />}
 								{t("page.turtle.main_game.try.submit")}
 							</Button>
 						</div>
@@ -354,7 +353,6 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 								onClick={submitSolution}
 								disabled={submitSulutionButtonDisabled}
 							>
-								{isRequesting && <Spinner />}
 								{t("page.turtle.main_game.solve.submit")}
 							</Button>
 						</div>
