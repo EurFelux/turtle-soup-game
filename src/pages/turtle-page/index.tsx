@@ -57,10 +57,12 @@ const TurtlePage = () => {
 
 	const [activeSoupId, setActiveSoupId] = useState<string | null>(null);
 
-	const activeSoup = (soups as Soup[]).find((soup) => soup.id === activeSoupId);
+	const activeSoup = (soups as Soup[])?.find(
+		(soup) => soup.id === activeSoupId,
+	);
 
 	return (
-		<div className="flex flex-1 flex-col gap-4 p-4 xl:flex-row xl:gap-0 xl:p-8">
+		<div className="flex h-full flex-1 flex-col gap-4 p-4 xl:flex-row xl:gap-0 xl:p-8">
 			<div className="max-h-72 w-full overflow-y-auto rounded-lg bg-secondary p-4 xl:max-h-full xl:w-60">
 				<SoupList
 					soups={soups}
@@ -73,7 +75,7 @@ const TurtlePage = () => {
 				orientation="vertical"
 				className="mx-2 hidden xl:block"
 			></Separator>
-			<div className="min-w-0 flex-1">
+			<div className="min-w-0 flex-1 overflow-auto">
 				<CreateSoupForm
 					aiSettings={settings}
 					setActiveSoupId={setActiveSoupId}
