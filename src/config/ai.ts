@@ -69,9 +69,9 @@ export const judgeTryPrompt = `
 必须且仅返回一个合法的 JSON 字符串，格式如下：
 \`\`\`json
 {
+  "reason": "逻辑解释文字，使用${LOCALE_VARIABLE}解释。但不要在解释中提及汤底的内容。",
   "status": "valid" | "invalid",
   "response": "yes" | "no" | "unrelated", // 仅在 status 为 valid 时存在
-  "reason": "逻辑解释文字，使用${LOCALE_VARIABLE}解释。但不要在解释中提及汤底的内容。"
 }
 \`\`\`
 
