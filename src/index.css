@@ -65,8 +65,13 @@
 body {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+}
+
+@media (min-width: 80rem) {
+    body {
+        height: 100vh;
+    }
 }
 
 #root {
@@ -74,7 +79,7 @@ body {
     flex-direction: column;
     flex: 1;
     height: 100%;
-    overflow: hidden;
+    overflow: hidden auto;
 }
 
 @media (prefers-color-scheme: light) {

@@ -13,8 +13,8 @@ const NoActiveSoup = ({ aiSettings }: NoActiveSoupProps) => {
 	const { t } = useTranslation();
 	const isValidAiSettings = checkAiSettings(aiSettings);
 	return (
-		<div className="flex h-full flex-col items-center justify-center rounded-lg bg-secondary">
-			<div className="flex h-1/3 w-1/2 flex-col gap-4">
+		<div className="flex h-full flex-col justify-center rounded-lg bg-secondary xl:items-center">
+			<div className="flex flex-col gap-4 p-4 xl:max-h-80 xl:min-w-120">
 				<div>
 					<h2 className="font-bold text-2xl">
 						{t("page.turtle.create_soup.title")}
