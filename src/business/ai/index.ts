@@ -233,7 +233,7 @@ export const createSolutionFromAI = async ({
 	aiSettings,
 	locale,
 	signal,
-}: CreateSolutionParams) => {
+}: CreateSolutionParams): Promise<boolean | "invalid"> => {
 	const provider = createProvider(aiSettings);
 
 	if (!userSolution) {
@@ -262,7 +262,7 @@ export const createSolutionFromAI = async ({
 	const isCorrect = judgeResult.text.trim().toLowerCase() === "true";
 
 	if (!isCorrect) {
-		throw new Error("Solution is incorrect");
+		return false;
 	}
 
 	// 第二步：生成评分和总结
@@ -305,7 +305,7 @@ export const createSolutionFromAI = async ({
 
 	const parsedSolution = CreateSolutionResultSchema.safeParse(parsedJson.data);
 	if (!parsedSolution.success) {
-		return;
+		return "invalid";
 	}
 
 	const solutionData = parsedSolution.data;
@@ -334,7 +334,7 @@ export const createSolutionFromAI = async ({
 	// 更新 SWR 缓存
 	mutate(swrKeyMap.soups);
 
-	return solutionData;
+	return true;
 };
 
 type GiveUpParams = {

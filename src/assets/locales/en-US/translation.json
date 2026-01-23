@@ -38,10 +38,14 @@
 				"title": "Create New Story"
 			},
 			"error": {
+				"incorrect_solution": "Incorrect solution",
 				"invalid_ai_settings": "AI Provider Settings is invalid"
 			},
 			"loading": {
-				"create": "Creating..."
+				"ask": "Asking...",
+				"create": "Creating...",
+				"request": "Requesting...",
+				"submit": "Submitting..."
 			},
 			"main_game": {
 				"give_up": {
@@ -86,6 +90,9 @@
 			},
 			"try_list": {
 				"empty": "No tries yet"
+			},
+			"warning": {
+				"invalid_result": ""
 			}
 		}
 	},

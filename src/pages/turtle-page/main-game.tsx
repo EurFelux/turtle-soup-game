@@ -83,13 +83,17 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 		}
 		setIsRequesting(true);
 		try {
-			await createTryFromAI({
+			const promise = createTryFromAI({
 				soupId: soup.id,
 				userPrompt: question,
 				aiSettings,
 				locale,
 				truth: soup.truth,
 			});
+			toast.promise(promise, {
+				loading: t("page.turtle.loading.ask"),
+			});
+			await promise;
 			setQuestion("");
 		} catch (error) {
 			toast.error(getErrorMessage(error));
@@ -106,12 +110,23 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 		}
 		setIsRequesting(true);
 		try {
-			await createSolutionFromAI({
+			const promise = createSolutionFromAI({
 				soup: soup,
 				userSolution: solution,
 				aiSettings,
 				locale,
 			});
+			toast.promise(promise, {
+				loading: t("page.turtle.loading.submit"),
+			});
+			promise.then((result) => {
+				if (result === "invalid") {
+					toast.warning(t("page.turtle.warning.invalid_result"));
+				} else if (!result) {
+					toast.error(t("page.turtle.error.incorrect_solution"));
+				}
+			});
+			await promise;
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 			console.error(error);
@@ -128,13 +143,17 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 		setIsRequesting(true);
 		setIsDialogOpen(false);
 		try {
-			await giveUpSoupFromAI({
+			const promise = giveUpSoupFromAI({
 				soup,
 				aiSettings,
 				locale,
 			});
+			toast.promise(promise, {
+				loading: t("page.turtle.loading.request"),
+				error: (error) => getErrorMessage(error),
+			});
+			await promise;
 		} catch (error) {
-			toast.error(getErrorMessage(error));
 			console.error(error);
 		} finally {
 			setIsRequesting(false);
@@ -147,16 +166,19 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 			return;
 		}
 		setIsRequesting(true);
-		console.log("requesting", isRequesting);
 		try {
-			const hint = await requestHintFromAI({
+			const promise = requestHintFromAI({
 				soup,
 				aiSettings,
 				locale,
 			});
-			toast.success(t("page.turtle.main_game.hint.success", { hint }));
+			toast.promise(promise, {
+				loading: t("page.turtle.loading.request"),
+				success: (hint) => t("page.turtle.main_game.hint.success", { hint }),
+				error: (error) => getErrorMessage(error),
+			});
+			await promise;
 		} catch (error) {
-			toast.error(getErrorMessage(error));
 			console.error(error);
 		} finally {
 			setIsRequesting(false);
@@ -270,7 +292,7 @@ const MainGame = ({ soup, aiSettings }: MainGameProps) => {
 								onClick={handleRequestHint}
 								disabled={isRequesting}
 							>
-								{!isRequesting && <Lightbulb className="size-4" />}
+								<Lightbulb className="size-4" />
 								{t("page.turtle.main_game.hint.button")}
 							</Button>
 							<Button

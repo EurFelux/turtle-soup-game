@@ -38,10 +38,14 @@
 				"title": "创作新故事"
 			},
 			"error": {
+				"incorrect_solution": "解答错误",
 				"invalid_ai_settings": "AI 提供商设置缺失"
 			},
 			"loading": {
-				"create": "创作中..."
+				"ask": "询问中...",
+				"create": "创作中...",
+				"request": "请求中...",
+				"submit": "提交中..."
 			},
 			"main_game": {
 				"give_up": {
@@ -86,6 +90,9 @@
 			},
 			"try_list": {
 				"empty": "无尝试"
+			},
+			"warning": {
+				"invalid_result": "page.turtle.warning.invalid_result"
 			}
 		}
 	},
